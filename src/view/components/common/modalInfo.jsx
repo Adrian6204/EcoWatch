@@ -31,7 +31,7 @@ const ModalInfo = ({ device, onClose }) => {
                 <div className="grid grid-cols-2 gap-3 text-left">
                     <div>Device ID: {device.deviceID}</div>
                     <div>Type: {device.type}</div>
-                    <div>Wattage: {device.wattage}</div>
+                    <div>Consumption Value: {device.consumptionValue}</div>
                     <div>Hours Used: {device.hoursUsed}</div>
                     <div>Author: {device.author}</div>
                 </div>

@@ -5,6 +5,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom'; 
 import earthLogo from '../static/save-earth.svg';
 import DropdownMenu from './dropdown';
 import DeviceManagement from '../menu_item_modules/deviceManagement';
@@ -25,7 +26,9 @@ const { Title } = Typography;
 const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('1');
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigate = useNavigate();
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -103,6 +106,11 @@ const AppLayout = () => {
     setModalVisible(false);
   };
 
+  const handleLogout = () => {
+    console.log("User logged out");
+    navigate('/usermanagement'); 
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -149,7 +157,7 @@ const AppLayout = () => {
           />
           <div style={{ marginLeft: 'auto', marginRight: '16px', display: 'flex', alignItems: 'center' }}>
             <UserOutlined style={{ marginRight: '10px', fontSize: '18px' }} />
-            <DropdownMenu label="Account" items={items} />
+            <DropdownMenu label="Account" items={items} onLogout={handleLogout} />
           </div>
         </Header>
 

@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UserOutlined
+  UserOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme, Typography } from 'antd';
-import { useNavigate } from 'react-router-dom'; 
+import { Button, Layout, Menu, theme, Typography, Input, Select, DatePicker } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import earthLogo from '../static/save-earth.svg';
 import DropdownMenu from './dropdown';
 import DeviceManagement from '../menu_item_modules/deviceManagement';
 import WaterMeter from '../menu_item_modules/waterMeter';
 import EnergyMeter from '../menu_item_modules/energyMeter';
 import ViewReport from '../menu_item_modules/viewReport';
-import ViewHistory from '../menu_item_modules/viewHistory';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
 import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
 import DevicesOtherOutlinedIcon from '@mui/icons-material/DevicesOtherOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import FormModal from './formModal';
+import FormModal from './modals/formModal';
+import { devices } from '../static/sampleArr';
+import Notifications from './notifications';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -27,6 +27,8 @@ const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('1');
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [formFields, setFormFields] = useState([]);
   const navigate = useNavigate();
 
   const {
@@ -47,8 +49,6 @@ const AppLayout = () => {
         return <EnergyMeter />;
       case '4':
         return <ViewReport />;
-      case '5':
-        return <ViewHistory />;
       default:
         return null;
     }
@@ -75,11 +75,6 @@ const AppLayout = () => {
       icon: <AssessmentOutlinedIcon />,
       label: 'View Report',
     },
-    {
-      key: '5',
-      icon: <ManageSearchIcon />,
-      label: 'View History',
-    },
   ];
 
   const getTitle = () => {
@@ -90,7 +85,7 @@ const AppLayout = () => {
   const items = [
     {
       key: '1',
-      label: 'Profile',
+      label: 'Update Profile',
     },
     {
       key: '2',
@@ -99,33 +94,109 @@ const AppLayout = () => {
   ];
 
   const openModal = () => {
-    setModalVisible(true);
+    if (selectedKey === '1') {
+      setModalTitle('Add Device');
+      setFormFields([
+        {
+          label: 'Device Name',
+          name: 'deviceName',
+          rules: [{ required: true, message: 'Please enter the device name!' }],
+          component: <Input placeholder="Enter device name" />,
+        },
+        {
+          label: 'Device Type',
+          name: 'deviceType',
+          rules: [{ required: true, message: 'Please select the device type!' }],
+          component: (
+            <Select placeholder="Select device type">
+              <Select.Option value="energy">Energy</Select.Option>
+              <Select.Option value="water">Water</Select.Option>
+            </Select>
+          ),
+        },
+        {
+          label: 'Wattage',
+          name: 'wattage',
+          rules: [{ required: true, message: 'Please enter the wattage!', type: 'number', min: 0 }],
+          component: <Input type="number" placeholder="Enter wattage" />,
+        },
+      ]);
+      setModalVisible(true);
+    } else if (selectedKey === '4') {
+      setModalTitle('View Report by Timeline');
+      setFormFields([
+        {
+          label: 'Type',
+          name: 'type',
+          rules: [{ required: true, message: 'Please select a type!' }],
+          component: (
+            <Select placeholder="Select type">
+              <Select.Option value="energy">Energy</Select.Option>
+              <Select.Option value="water">Water</Select.Option>
+            </Select>
+          ),
+        },
+        {
+          label: 'From Date',
+          name: 'fromDate',
+          rules: [{ required: true, message: 'Please select a start date!' }],
+          component: <DatePicker style={{ width: '100%' }} placeholder="Select start date" />,
+        },
+        {
+          label: 'To Date',
+          name: 'toDate',
+          rules: [{ required: true, message: 'Please select an end date!' }],
+          component: <DatePicker style={{ width: '100%' }} placeholder="Select end date" />,
+        },
+      ]);
+      setModalVisible(true);
+    }
   };
+  
 
   const closeModal = () => {
     setModalVisible(false);
   };
 
   const handleLogout = () => {
-    console.log("User logged out");
-    navigate('/usermanagement'); 
+    console.log('User logged out');
+    navigate('/usermanagement');
+  };
+
+  const handleFormSubmit = (values) => {
+    const newDevice = {
+      deviceID: devices.length + 1,
+      type: values.deviceType,
+      name: values.deviceName,
+      wattage: values.wattage,
+      hoursUsed: 0,
+      author: 'YourName',
+    };
+
+    devices.push(newDevice);
+    console.log('New device added:', newDevice);
   };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      <Notifications />
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
         <div style={{ padding: '16px', color: '#fff', textAlign: 'center' }}>
-          {collapsed ? 
-            <img src={earthLogo} alt='earth-logo' style={{ width: '40px', height: '40px' }} /> 
-            :
+          {collapsed ? (
+            <img src={earthLogo} alt="earth-logo" style={{ width: '40px', height: '40px' }} />
+          ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <img src={earthLogo} alt='earth-logo' style={{ width: '40px', height: '40px', marginRight: '8px' }} />
+              <img
+                src={earthLogo}
+                alt="earth-logo"
+                style={{ width: '40px', height: '40px', marginRight: '8px' }}
+              />
               <Title level={3} style={{ margin: 0, color: '#fff' }}>
                 EcoWatch
               </Title>
             </div>
-          }
+          )}
         </div>
         <Menu
           theme="dark"
@@ -170,15 +241,29 @@ const AppLayout = () => {
             borderRadius: borderRadiusLG,
           }}
         >
-          <Title level={4} style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Title  
+            level={4}
+            style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             <span>{getTitle()}</span>
             {selectedKey === '1' && (
-              <Button type="primary" style={{ marginLeft: '16px' }} onClick={openModal}>
+              <Button
+                className="ml-4 bg-primary text-white"
+                onClick={openModal}
+              >
                 Add Device
               </Button>
             )}
+            {selectedKey === '4' && (
+              <Button
+                className="ml-4 bg-primary text-white"
+                onClick={openModal}
+              >
+                View Report by Timeline
+              </Button>
+            )}
           </Title>
-          
+
           <div
             style={{
               maxHeight: 'calc(100vh - 64px - 48px - 48px)',
@@ -189,8 +274,15 @@ const AppLayout = () => {
           </div>
         </Content>
       </Layout>
-      
-      {modalVisible && <FormModal device={selectedKey} onClose={closeModal} />}
+
+      {modalVisible && (
+        <FormModal
+          title={modalTitle}
+          formFields={formFields}
+          onClose={closeModal}
+          onSubmit={handleFormSubmit}
+        />
+      )}
     </Layout>
   );
 };

@@ -34,7 +34,7 @@ const UserManagement = () => {
             <Components.Title>Sign in</Components.Title>
             <Components.Input type='email' placeholder='Email' />
             <Components.Input type='password' placeholder='Password' />
-            <Components.Anchor href='#'>Forgot your password?</Components.Anchor>
+            <Components.Anchor href='/forgotpassword'>Forgot your password?</Components.Anchor>
             <Components.Button onClick={handleClick}>Sign In</Components.Button>
           </Components.Form>
         </Components.SignInContainer>

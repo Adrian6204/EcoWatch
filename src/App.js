@@ -4,6 +4,8 @@ import Landing from './view/pages/landing';
 import UserManagement from './view/pages/userManagement';
 import NotFound from './view/pages/404';
 import AppLayout from './view/components/common/layout';
+import ForgotPassword from './view/pages/forgotpassword';
+import OtpInput from './view/pages/otp';
 
 function App() {
   return (
@@ -11,6 +13,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/usermanagement" element={<UserManagement />} />
+          <Route path="/forgotpassword" element={<ForgotPassword />} />
+          <Route path="/otp" element={<OtpInput />} />
           <Route path="/dashboard" element={<AppLayout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

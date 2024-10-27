@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { devices } from '../static/sampleArr';
 import DeviceCard from '../common/deviceCards';
-import ModalInfo from '../common/modalInfo';
+import ModalInfo from '../common/modals/modalInfo';
 
 const DeviceManagement = () => {
     const [isModalVisible, setModalVisible] = useState(false);

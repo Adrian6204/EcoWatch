@@ -30,7 +30,7 @@ export const handleSignIn = (e, formData, setError, navigate, setLoading) => {
   return handleLoginSignup(e, formData, 'https://ecowatch-backend.onrender.com/api/user/login', setError, navigate, setLoading);
 };
 
-export const handleUpdateProfile = async (formData, setLoading, setDisplayError, onClose) => {
+export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedbackMessage, onClose) => {
   const userId = userManagementState.getState().user.userId; 
   const url = 'https://ecowatch-backend.onrender.com/api/user/update-user';
 
@@ -48,14 +48,37 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayError,
       }
     });
 
-    console.log(response)
     if (response.status === 200) {
       userManagementState.getState().setUser(response.data);
+      setDisplayFeedbackMessage('Profile updated successfully!');
       setLoading(false);
+      onClose();
+      return response.status;
+    }
+  } catch (error) {
+    setDisplayFeedbackMessage('Failed to update profile. Please try again.\n' + error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+export const handleDeleteProfile = async (setLoading, navigate, setDisplayFeedbackMessage, onClose) => {
+  const userId = userManagementState.getState().user.userId; 
+  const url = `https://ecowatch-backend.onrender.com/api/user/delete/{userId}?userId=${userId}`;
+  const { clearUser } = userManagementState.getState(); 
+
+  try {
+    setLoading(true);
+    const response = await axios.delete(url);
+
+    if (response.status === 200) {
+      clearUser();
+      setDisplayFeedbackMessage('Profile deleted successfully!');
+      navigate('/usermanagement') 
       onClose();
     }
   } catch (error) {
-    setDisplayError('Failed to update profile. Please try again.\n' + error);
+    setDisplayFeedbackMessage('Failed to delete profile. Please try again.\n' + error);
   } finally {
     setLoading(false);
   }

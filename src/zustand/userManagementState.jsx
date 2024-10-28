@@ -16,5 +16,6 @@ export const userManagementState = create((set) => ({
   clearUser: () => {
     localStorage.removeItem(localStorageKey);
     set({ user: null });
-  }
+  },
+  isLoggedIn: () => !!getUserFromLocalStorage(),
 }));

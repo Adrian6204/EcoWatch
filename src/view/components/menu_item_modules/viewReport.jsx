@@ -91,7 +91,7 @@ const ViewReport = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 rounded-lg min-h-screen">
       <div className="bg-white p-4 rounded shadow-md">
         <h2 className="text-xl font-semibold">Total Consumption</h2>
         <p className="text-lg">Energy Consumption: {totalEnergyConsumption} kWh</p>

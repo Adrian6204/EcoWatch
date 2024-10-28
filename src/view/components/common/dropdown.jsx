@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Input } from 'antd';
-import FormModal from './modals/formModal';
+import UpdateProfile from './modals/updateProfile';
 
 const DropdownMenu = ({ label, items, onLogout }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -66,7 +66,7 @@ const DropdownMenu = ({ label, items, onLogout }) => {
         </a>
       </Dropdown>
       {modalVisible && (
-        <FormModal
+        <UpdateProfile
           title={modalTitle}
           formFields={formFields}
           onClose={closeModal}

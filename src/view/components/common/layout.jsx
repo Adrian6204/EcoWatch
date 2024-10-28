@@ -16,9 +16,11 @@ import WaterDropOutlinedIcon from '@mui/icons-material/WaterDropOutlined';
 import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
 import DevicesOtherOutlinedIcon from '@mui/icons-material/DevicesOtherOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import FormModal from './modals/formModal';
 import { devices } from '../static/sampleArr';
 import Notifications from './notifications';
+import { userManagementState } from '../../../zustand/userManagementState';
+import ErrorModal from './modals/errorModal';
+import UpdateProfile from './modals/updateProfile';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -29,6 +31,7 @@ const AppLayout = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [formFields, setFormFields] = useState([]);
+  const [errorModal, setErrorModal] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -159,7 +162,8 @@ const AppLayout = () => {
   };
 
   const handleLogout = () => {
-    console.log('User logged out');
+    const { clearUser } = userManagementState.getState(); 
+    clearUser();
     navigate('/usermanagement');
   };
 
@@ -179,6 +183,7 @@ const AppLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {errorModal && <ErrorModal isOpen={errorModal}/>}
       <Notifications />
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
@@ -276,7 +281,7 @@ const AppLayout = () => {
       </Layout>
 
       {modalVisible && (
-        <FormModal
+        <UpdateProfile
           title={modalTitle}
           formFields={formFields}
           onClose={closeModal}

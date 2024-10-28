@@ -5,10 +5,10 @@ import ModalInfo from '../common/modals/modalInfo';
 
 const DeviceManagement = () => {
     const [isModalVisible, setModalVisible] = useState(false);
-    const [selectedDevice, setSelectedDevice] = useState(null); 
+    const [selectedDevice, setSelectedDevice] = useState(null);
 
     const showModal = (device) => {
-        setSelectedDevice(device); 
+        setSelectedDevice(device);
         setModalVisible(true);
     };
 

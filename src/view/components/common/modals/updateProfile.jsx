@@ -10,11 +10,12 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
   const handleOk = async () => {
     try {
       const formData = form.getFieldsValue();
+
       await handleUpdateProfile(
-        null, 
         formData,
         setLoading,
-        setDisplayError
+        setDisplayError,
+        onClose
       );
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -55,8 +56,14 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
         ),
       ]}
     >
-      {displayError && <div style={{ color: 'red', marginBottom: '10px' }}>{displayError}</div>}
-      <Form form={form} layout="vertical">
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={formFields.reduce((acc, field) => {
+          acc[field.name] = field.initialValue;
+          return acc;
+        }, {})}
+      >
         {formFields.map((field) => (
           <Form.Item
             key={field.name}
@@ -67,6 +74,7 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
             {field.component}
           </Form.Item>
         ))}
+        {displayError && <div style={{ color: 'red', marginBottom: '10px' }}>{displayError}</div>}
       </Form>
     </Modal>
   );

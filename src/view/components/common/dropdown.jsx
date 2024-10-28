@@ -1,39 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Input } from 'antd';
 import UpdateProfile from './modals/updateProfile';
+import { userManagementState } from '../../../zustand/userManagementState';
 
 const DropdownMenu = ({ label, items, onLogout }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [formFields, setFormFields] = useState([]);
   const [modalTitle, setModalTitle] = useState('');
+  const { user } = userManagementState();
+
+  const formFields = useMemo(() => [
+    {
+      label: 'First Name',
+      name: 'firstname',
+      initialValue: user.firstname,
+      rules: [{ required: true, message: 'Please enter the first name!' }],
+      component: <Input />,
+    },
+    {
+      label: 'Last Name',
+      name: 'lastname',
+      initialValue: user.lastname,
+      rules: [{ required: true, message: 'Please enter the last name!' }],
+      component: <Input />,
+    },
+    {
+      label: 'Email',
+      name: 'email',
+      initialValue: user.email,
+      rules: [{ required: true, message: 'Please enter the email!', type: 'email' }],
+      component: <Input />,
+    },
+  ], [user]);
 
   const handleMenuClick = (key) => {
     if (key === '1') {
       setModalTitle('Update Profile');
-      setFormFields([
-        {
-          label: 'First Name',
-          name: 'firstName',
-          placeholder: 'Brynt',
-          rules: [{ required: true, message: 'Please enter the first name!' }],
-          component: <Input />,
-        },
-        {
-          label: 'Last Name',
-          name: 'lastName',
-          placeholder: 'Pogi',
-          rules: [{ required: true, message: 'Please enter the last name!' }],
-          component: <Input />,
-        },
-        {
-          label: 'Email',
-          name: 'email',
-          placeholder: 'brynt.dador@cit.edu',
-          rules: [{ required: true, message: 'Please enter the email!', type: 'email' }],
-          component: <Input />,
-        },
-      ]);
       setModalVisible(true);
     } else if (key === '2' && onLogout) {
       onLogout();

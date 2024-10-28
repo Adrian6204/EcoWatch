@@ -20,6 +20,7 @@ import { devices } from '../static/sampleArr';
 import Notifications from './notifications';
 import { userManagementState } from '../../../zustand/userManagementState';
 import ErrorModal from './modals/errorModal';
+import OkModal from './modals/okModal';
 import UpdateProfile from './modals/updateProfile';
 
 const { Header, Sider, Content } = Layout;
@@ -32,6 +33,7 @@ const AppLayout = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [formFields, setFormFields] = useState([]);
   const [errorModal, setErrorModal] = useState(false);
+  const [ok, setOk] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -184,6 +186,7 @@ const AppLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {errorModal && <ErrorModal isOpen={errorModal}/>}
+      {ok && <OkModal isOpen={ok} message={'Transaction successful.'}/>}
       <Notifications />
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />

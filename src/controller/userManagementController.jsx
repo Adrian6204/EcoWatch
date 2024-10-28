@@ -30,8 +30,8 @@ export const handleSignIn = (e, formData, setError, navigate, setLoading) => {
   return handleLoginSignup(e, formData, 'https://ecowatch-backend.onrender.com/api/user/login', setError, navigate, setLoading);
 };
 
-export const handleUpdateProfile = async (formData, setLoading, setDisplayError) => {
-  const userId = userManagementState.getState().user.userId; // Get userId from state
+export const handleUpdateProfile = async (formData, setLoading, setDisplayError, onClose) => {
+  const userId = userManagementState.getState().user.userId; 
   const url = 'https://ecowatch-backend.onrender.com/api/user/update-user';
 
   const updatedData = {
@@ -47,12 +47,15 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayError)
         'Content-Type': 'application/json'
       }
     });
+
+    console.log(response)
     if (response.status === 200) {
       userManagementState.getState().setUser(response.data);
       setLoading(false);
+      onClose();
     }
   } catch (error) {
-    setDisplayError('Failed to update profile. Please try again.');
+    setDisplayError('Failed to update profile. Please try again.\n' + error);
   } finally {
     setLoading(false);
   }

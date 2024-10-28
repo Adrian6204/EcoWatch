@@ -27,20 +27,33 @@ export const handleSignIn = (e, formData, setError) => {
 
 export const handleForgotPassword = async (email, setDisplayFeedbackMessage) => {
   const url = `${API_URL}/user/forget-password`;
-
+  setDisplayFeedbackMessage('Sending OTP, please wait...');
   try {
-    const response = await axios.post(url, email, {
+    const response = await axios({
+      method: 'post',
+      url: url,
+      data: email,
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    });
+    return response;
+  } catch (error) {
+    setDisplayFeedbackMessage('Failed to send reset instructions. Please try again.\n' + error);
+  }
+};
+
+export const handleResetPassword = async (email, otp, newPassword, setDisplayFeedbackMessage) => {
+  const url = `${API_URL}/user/reset-password`;
+  try {
+    const response = await axios.patch(url, { email, otp, newPassword }, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
-
-    if (response.status === 200) {
-      setDisplayFeedbackMessage('Check your email for reset instructions.');
-      return response.status;
-    }
+    return response;
   } catch (error) {
-    setDisplayFeedbackMessage('Failed to send reset instructions. Please try again.\n' + error);
+    setDisplayFeedbackMessage('Failed to change password. Please try again.\n' + error);
   }
 };
 

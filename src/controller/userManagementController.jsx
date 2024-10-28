@@ -3,22 +3,19 @@ import { userManagementState } from '../zustand/userManagementState';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-
 const handleLoginSignup = async (e, formData, endpoint, setDisplayError) => {
   e.preventDefault();
-  console.log(`${API_URL}${endpoint}`)
   try {
     const response = await axios.post(`${API_URL}${endpoint}`, formData, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
-    return response; 
+    return response;
   } catch (error) {
     setDisplayError('Incorrect credentials. Please try again.');
-  } 
+  }
 };
-
 
 export const handleSignUp = (e, formData, setError) => {
   return handleLoginSignup(e, formData, '/user', setError);
@@ -28,8 +25,27 @@ export const handleSignIn = (e, formData, setError) => {
   return handleLoginSignup(e, formData, '/user/login', setError);
 };
 
+export const handleForgotPassword = async (email, setDisplayFeedbackMessage) => {
+  const url = `${API_URL}/user/forget-password`;
+
+  try {
+    const response = await axios.post(url, email, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.status === 200) {
+      setDisplayFeedbackMessage('Check your email for reset instructions.');
+      return response.status;
+    }
+  } catch (error) {
+    setDisplayFeedbackMessage('Failed to send reset instructions. Please try again.\n' + error);
+  }
+};
+
 export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedbackMessage, onClose) => {
-  const userId = userManagementState.getState().user.userId; 
+  const userId = userManagementState.getState().user.userId;
   const url = `${API_URL}/user/update-user`;
 
   const updatedData = {
@@ -60,9 +76,9 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedba
 };
 
 export const handleDeleteProfile = async (setLoading, navigate, setDisplayFeedbackMessage, onClose) => {
-  const userId = userManagementState.getState().user.userId; 
+  const userId = userManagementState.getState().user.userId;
   const url = `${API_URL}/user/delete/${userId}?userId=${userId}`;
-  const { clearUser } = userManagementState.getState(); 
+  const { clearUser } = userManagementState.getState();
 
   try {
     setLoading(true);
@@ -71,7 +87,7 @@ export const handleDeleteProfile = async (setLoading, navigate, setDisplayFeedba
     if (response.status === 200) {
       clearUser();
       setDisplayFeedbackMessage('Profile deleted successfully!');
-      navigate('/usermanagement') 
+      navigate('/usermanagement');
       onClose();
     }
   } catch (error) {

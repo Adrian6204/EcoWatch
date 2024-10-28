@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { handleForgotPassword } from '../../controller/userManagementController';
+import { checkServerResponse, saveUser } from '../components/common/functions/commonFunctions';
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [displayFeedbackMessage, setDisplayFeedbackMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const response = await handleForgotPassword(email, setDisplayFeedbackMessage);
     setSubmitted(true);
-    navigate('/otp');
+
+    if(checkServerResponse(response)) {
+      navigate('/otp');
+    }
   };
 
   return (
@@ -39,7 +45,7 @@ const ForgotPassword = () => {
           </form>
         ) : (
           <div className="text-center">
-            <p className="text-lg font-medium" style={{ color: '#001529' }}>Check your email for reset instructions.</p>
+            <p className="text-lg font-medium" style={{ color: '#001529' }}>{displayFeedbackMessage}</p>
           </div>
         )}
       </div>

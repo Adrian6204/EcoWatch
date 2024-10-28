@@ -25,22 +25,22 @@ const Notifications = () => {
     [],
   );
 
-  useEffect(() => {
-    const showNotifications = async () => {
-      if (!hasNotifiedRef.current) {
-        hasNotifiedRef.current = true; 
-        while (true) {
-          const tip = await getSavingTip();
-          if (tip && tip.tip) {
-            openNotification('bottomRight', tip.tip);
-          }
-          await new Promise(resolve => setTimeout(resolve, 30000)); 
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const showNotifications = async () => {
+  //     if (!hasNotifiedRef.current) {
+  //       hasNotifiedRef.current = true; 
+  //       while (true) {
+  //         const tip = await getSavingTip();
+  //         if (tip && tip.tip) {
+  //           openNotification('bottomRight', tip.tip);
+  //         }
+  //         await new Promise(resolve => setTimeout(resolve, 30000)); 
+  //       }
+  //     }
+  //   };
 
-    showNotifications();
-  }, [api]);
+  //   showNotifications();
+  // }, [api]);
 
   return (
     <Context.Provider value={contextValue}>

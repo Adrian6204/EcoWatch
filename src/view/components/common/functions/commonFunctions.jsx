@@ -10,8 +10,8 @@ export const validateForm = (formData, fields) => {
   };
   
 export const checkServerResponse = (response) => {
-  if (response.status === 201 || response.status === 200 ) {
-    return true; 
+  if (response) {
+    if (response.status === 201 || response.status === 200 ) return true; 
   }
 }
 

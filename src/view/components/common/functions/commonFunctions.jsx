@@ -1,3 +1,5 @@
+import { userManagementState } from "../../../../zustand/userManagementState";
+
 export const validateForm = (formData, fields) => {
     for (const field of fields) {
       if (!formData[field]) {
@@ -7,3 +9,12 @@ export const validateForm = (formData, fields) => {
     return '';
   };
   
+export const checkServerResponse = (response) => {
+  if (response.status === 201 || response.status === 200 ) {
+    return true; 
+  }
+}
+
+export const saveUser = (response) => {
+  userManagementState.getState().setUser(response.data); 
+}

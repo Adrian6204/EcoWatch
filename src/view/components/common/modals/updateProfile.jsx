@@ -3,6 +3,7 @@ import { Button, Modal, Form } from 'antd';
 import { handleUpdateProfile, handleDeleteProfile } from '../../../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
 import { userManagementState } from '../../../../zustand/userManagementState';
+import { checkServerResponse, saveUser } from '../functions/commonFunctions';
 
 const UpdateProfile = ({ formFields, title, onClose }) => {
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,10 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
         onClose,
       );
 
-      if(response === 200) alert('Profile updated successfully');
+      if(checkServerResponse(response)) {
+        saveUser(response);
+        alert('Profile updated successfully');
+      }
       
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -45,7 +49,7 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
   const handleDelete = async () => {
     try {
       const response = await handleDeleteProfile(setLoading, navigate, setDisplayFeedbackMessage, onClose);
-      if (response === 200) {
+      if (checkServerResponse(response)) {
         clearUser();
         alert('Profile deleted successfully');
       }

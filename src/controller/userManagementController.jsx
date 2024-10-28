@@ -1,38 +1,36 @@
 import axios from 'axios';
 import { userManagementState } from '../zustand/userManagementState';
 
-const handleLoginSignup = async (e, formData, url, navigate, setLoading, setDisplayError) => {
+const API_URL = process.env.REACT_APP_API_URL;
+
+
+const handleLoginSignup = async (e, formData, endpoint, setDisplayError) => {
   e.preventDefault();
-  
+  console.log(`${API_URL}${endpoint}`)
   try {
-    const response = await axios.post(url, formData, {
+    const response = await axios.post(`${API_URL}${endpoint}`, formData, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
-    if (response.status === 201 || response.status === 200) {
-      userManagementState.getState().setUser(response.data); 
-      navigate('/dashboard');
-      return response.data; 
-    }
+    return response; 
   } catch (error) {
     setDisplayError('Incorrect credentials. Please try again.');
-  } finally {
-    setLoading(false);
-  }
+  } 
 };
 
-export const handleSignUp = (e, formData, setError, navigate, setLoading) => {
-  return handleLoginSignup(e, formData, 'https://ecowatch-backend.onrender.com/api/user', setError, navigate, setLoading);
+
+export const handleSignUp = (e, formData, setError) => {
+  return handleLoginSignup(e, formData, '/user', setError);
 };
 
-export const handleSignIn = (e, formData, setError, navigate, setLoading) => {
-  return handleLoginSignup(e, formData, 'https://ecowatch-backend.onrender.com/api/user/login', setError, navigate, setLoading);
+export const handleSignIn = (e, formData, setError) => {
+  return handleLoginSignup(e, formData, '/user/login', setError);
 };
 
 export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedbackMessage, onClose) => {
   const userId = userManagementState.getState().user.userId; 
-  const url = 'https://ecowatch-backend.onrender.com/api/user/update-user';
+  const url = `${API_URL}/user/update-user`;
 
   const updatedData = {
     userId,
@@ -49,7 +47,6 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedba
     });
 
     if (response.status === 200) {
-      userManagementState.getState().setUser(response.data);
       setDisplayFeedbackMessage('Profile updated successfully!');
       setLoading(false);
       onClose();
@@ -64,7 +61,7 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedba
 
 export const handleDeleteProfile = async (setLoading, navigate, setDisplayFeedbackMessage, onClose) => {
   const userId = userManagementState.getState().user.userId; 
-  const url = `https://ecowatch-backend.onrender.com/api/user/delete/{userId}?userId=${userId}`;
+  const url = `${API_URL}/user/delete/${userId}?userId=${userId}`;
   const { clearUser } = userManagementState.getState(); 
 
   try {

@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useRef } from 'react';
 import { notification } from 'antd';
-import { tipsArr } from '../static/sampleArr';
+import { getSavingTip } from '../../../controller/savingTipController';
 
 const Context = React.createContext({
   name: 'Default',
@@ -29,9 +29,12 @@ const Notifications = () => {
     const showNotifications = async () => {
       if (!hasNotifiedRef.current) {
         hasNotifiedRef.current = true; 
-        for (const tip of tipsArr) {
-          openNotification('bottomRight', tip);
-          await new Promise(resolve => setTimeout(resolve, 10000)); 
+        while (true) {
+          const tip = await getSavingTip();
+          if (tip && tip.tip) {
+            openNotification('bottomRight', tip.tip);
+          }
+          await new Promise(resolve => setTimeout(resolve, 30000)); 
         }
       }
     };

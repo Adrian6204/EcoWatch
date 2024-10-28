@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as Components from '../components/common/userManagementComponents';
 import { handleSignUp, handleSignIn } from '../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
-import { validateForm } from '../components/common/functions/commonFunctions';
+import { checkServerResponse, saveUser, validateForm } from '../components/common/functions/commonFunctions';
 import LoadModal from '../components/common/modals/loadModal';
 import { initialFormData } from '../../model/userManagementModel';
 import ErrorModal from '../components/common/modals/errorModal';
@@ -36,7 +36,12 @@ const UserManagement = () => {
       setLoading(false);
       return;
     }
-    await handleSignUp(e, formData, navigate, setLoading, setDisplayError);
+    const response = await handleSignUp(e, formData, navigate, setDisplayError);
+    if (checkServerResponse(response)) {
+      saveUser(response);
+      setLoading(false);
+      navigate('/dashboard');
+    } 
   };
 
   const handleSignInWrapper = async (e) => {
@@ -48,7 +53,12 @@ const UserManagement = () => {
       setLoading(false);
       return;
     }
-    await handleSignIn(e, formData, navigate, setLoading, setDisplayError);
+    const response = await handleSignIn(e, formData, navigate, setDisplayError);
+    if (checkServerResponse(response)) {
+      saveUser(response);
+      setLoading(false);
+      navigate('/dashboard');
+    } 
   };
 
   return (

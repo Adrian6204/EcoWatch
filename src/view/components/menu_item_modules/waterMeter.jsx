@@ -1,20 +1,44 @@
-import React from 'react';
-import { devices } from '../static/sampleArr';
+import React, { useEffect, useState } from 'react';
+import { fetchTypeConsumptionData } from '../../../controller/typeConsumptionController';
 
 const WaterMeter = () => {
-    const waterDevices = devices.filter(device => device.type === 'water');
+    const [waterDevices, setWaterDevices] = useState([]);
+    const [overallConsumption, setOverallConsumption] = useState(0);
+    const [weeklyConsumption, setWeeklyConsumption] = useState([]);
 
-    const overallConsumption = waterDevices.reduce((acc, device) => acc + (device.hoursUsed * 10), 0);
-    const consumptionArray = overallConsumption / 1000; 
-    const value = overallConsumption;
-    const paddedValue = String(value).padStart(8, '0'); 
-    const valueArray = paddedValue.split('').map(Number); 
+    useEffect(() => {
+        const getData = async () => {
+            try {
+                const data = await fetchTypeConsumptionData('Water');
+                console.log(data)
+                setWaterDevices(data);
+                
+                const totalConsumption = data.reduce((acc, device) => acc + (device.hoursUsed * 10), 0);
+                setOverallConsumption(totalConsumption);
+
+                const weeklyDevices = groupByWeek(data);
+                const weeklyData = Object.entries(weeklyDevices).map(([week, devices]) => {
+                    const totalWeeklyConsumption = devices.reduce((acc, device) => acc + (device.hoursUsed * 10), 0).toFixed(2);
+                    return {
+                        week,
+                        devices: devices.map(device => device.name).join(', '),
+                        consumption: totalWeeklyConsumption,
+                    };
+                });
+                setWeeklyConsumption(weeklyData);
+            } catch (error) {
+                console.error('Error fetching water consumption data:', error);
+            }
+        };
+
+        getData();
+    }, []);
 
     const groupByWeek = (devices) => {
         const weeks = {};
         devices.forEach(device => {
             const date = new Date(device.dateAdded);
-            const week = `${date.getFullYear()}-W${Math.ceil((date.getDate() + 6 - date.getDay()) / 7)}`; 
+            const week = `${date.getFullYear()}-W${Math.ceil((date.getDate() + 6 - date.getDay()) / 7)}`;
 
             if (!weeks[week]) {
                 weeks[week] = [];
@@ -24,22 +48,16 @@ const WaterMeter = () => {
         return weeks;
     };
 
-    const weeklyDevices = groupByWeek(waterDevices);
-
-    const weeklyConsumption = Object.entries(weeklyDevices).map(([week, devices]) => {
-        const totalConsumption = devices.reduce((acc, device) => acc + (device.hoursUsed * 10), 0).toFixed(2); 
-        return {
-            week,
-            devices: devices.map(device => device.name).join(', '),
-            consumption: totalConsumption,
-        };
-    });
+    const consumptionArray = (overallConsumption / 1000).toFixed(2);
+    const value = overallConsumption;
+    const paddedValue = String(value).padStart(8, '0');
+    const valueArray = paddedValue.split('').map(Number);
 
     return (
         <div className="flex flex-col items-center">
             <div className="flex justify-center items-end h-24">
                 {valueArray.map((digit, index) => {
-                    const isLastThree = index >= valueArray.length - 3; 
+                    const isLastThree = index >= valueArray.length - 3;
                     return (
                         <div
                             key={index}

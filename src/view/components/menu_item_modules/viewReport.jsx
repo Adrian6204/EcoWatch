@@ -1,46 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
-import { devices } from '../static/sampleArr';
+import { fetchConsumptionData, processConsumptionData } from '../../../controller/consumptionController';
 
-// Register all necessary components
 Chart.register(...registerables);
 
-const calculateTotalConsumption = (type) => {
-  return devices
-    .filter(device => device.type === type)
-    .reduce((total, device) => total + device.consumptionValue, 0);
-};
-
-const getMonthlyConsumptionData = () => {
-  const monthlyEnergyConsumption = Array(12).fill(0);
-  const monthlyWaterConsumption = Array(12).fill(0);
-
-  devices.forEach(device => {
-    const monthIndex = new Date(device.dateAdded).getMonth();
-    if (device.type === 'energy') {
-      monthlyEnergyConsumption[monthIndex] += device.consumptionValue;
-    } else if (device.type === 'water') {
-      monthlyWaterConsumption[monthIndex] += device.consumptionValue;
-    }
+const ViewReport = () => {
+  const [consumptionData, setConsumptionData] = useState({
+    energyData: [],
+    waterData: [],
+    labels: [],
+    monthlyEnergyConsumption: [],
+    monthlyWaterConsumption: [],
+    totalEnergyConsumption: 0,
+    totalWaterConsumption: 0
   });
 
-  return { monthlyEnergyConsumption, monthlyWaterConsumption };
-};
+  useEffect(() => {
+    const getData = async () => {
+      const data = await fetchConsumptionData();
+      const processedData = processConsumptionData(data);
+      setConsumptionData(processedData);
+    };
 
-const getConsumptionData = () => {
-  const energyData = devices.filter(device => device.type === 'energy').map(device => device.consumptionValue);
-  const waterData = devices.filter(device => device.type === 'water').map(device => device.consumptionValue);
-  const labels = devices.map(device => device.name);
-  
-  return { energyData, waterData, labels };
-};
+    getData();
+  }, []);
 
-const ViewReport = () => {
-  const totalEnergyConsumption = calculateTotalConsumption('energy');
-  const totalWaterConsumption = calculateTotalConsumption('water');
-  const { energyData, waterData, labels } = getConsumptionData();
-  const { monthlyEnergyConsumption, monthlyWaterConsumption } = getMonthlyConsumptionData();
+  const {
+    energyData,
+    waterData,
+    labels,
+    monthlyEnergyConsumption,
+    monthlyWaterConsumption,
+    totalEnergyConsumption,
+    totalWaterConsumption
+  } = consumptionData;
 
   const barData = {
     labels,
@@ -87,15 +81,15 @@ const ViewReport = () => {
         beginAtZero: true,
       },
     },
-    maintainAspectRatio: false, 
+    maintainAspectRatio: false,
   };
 
   return (
     <div className="p-6 bg-gray-100 rounded-lg min-h-screen">
       <div className="bg-white p-4 rounded shadow-md">
         <h2 className="text-xl font-semibold">Total Consumption</h2>
-        <p className="text-lg">Energy Consumption: {totalEnergyConsumption} kWh</p>
-        <p className="text-lg">Water Consumption: {totalWaterConsumption} liters</p>
+        <p className="text-lg">Energy Consumption: {(totalEnergyConsumption || 0).toFixed(2)} kWh</p>
+        <p className="text-lg">Water Consumption: {(totalWaterConsumption || 0).toFixed(2)} liters</p>
       </div>
       <div className="flex mt-8 space-x-4">
         <div className="w-1/2 h-64">
@@ -110,9 +104,9 @@ const ViewReport = () => {
       <div className="mt-8">
         <h2 className="text-xl font-semibold">Detailed Consumption by Device</h2>
         <ul className="list-disc pl-6">
-          {devices.map(device => (
-            <li key={device.deviceID} className="mb-2">
-              <span className="font-medium">{device.name}</span>: {device.consumptionValue} {device.type === 'energy' ? 'kWh' : 'liters'} (Used: {device.hoursUsed} hours)
+          {labels.map((label, index) => (
+            <li key={index} className="mb-2">
+              <span className="font-medium">{label}</span>: {(energyData[index] || waterData[index] || 0).toFixed(2)} {energyData[index] ? 'kWh' : 'liters'}
             </li>
           ))}
         </ul>

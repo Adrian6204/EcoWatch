@@ -74,6 +74,7 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
         if (checkServerResponse(response)) {
           onClose();
           alert('Device added successfully');
+          window.location.reload();
         }
       } catch (error) {
         console.error('Error adding device: ', error);

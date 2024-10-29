@@ -62,3 +62,31 @@ export const deleteDevice = async (deviceId, setDisplayError) => {
     setDisplayError('Error deleting device. Please try again.');
   }
 };
+
+export const updateWaterDevice = async (deviceId, deviceData, setDisplayError) => {
+  console.log(`${API_URL}/device/water/${deviceId}?deviceId=${deviceId}`);
+  try {
+    const response = await axios.put(`${API_URL}/device/water/${deviceId}?deviceId=${deviceId}`, deviceData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response;
+  } catch (error) {
+    setDisplayError('Error updating water device. Please try again. ' + error);
+  }
+};
+
+export const updateEnergyDevice = async (deviceId, deviceData, setDisplayError) => {
+  console.log(`${API_URL}/device/electric/${deviceId}?deviceId=${deviceId}`);
+  try {
+    const response = await axios.put(`${API_URL}/device/electric/${deviceId}?deviceId=${deviceId}`, deviceData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response;
+  } catch (error) {
+    setDisplayError('Error updating energy device. Please try again. ' + error);
+  }
+};

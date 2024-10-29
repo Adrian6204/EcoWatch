@@ -20,7 +20,7 @@ const DeviceManagement = () => {
         };
 
         fetchDevices();
-    }, [devices]);
+    }, []);
 
     const showModal = (device) => {
         setSelectedDevice(device);

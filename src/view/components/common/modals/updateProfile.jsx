@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form } from 'antd';
-import { handleUpdateProfile, handleDeleteProfile } from '../../../../controller/userManagementController';
+import { handleUpdateProfile, handleDeleteProfile, handleChangePassword } from '../../../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
 import { checkServerResponse, saveUser } from '../functions/commonFunctions';
 import { addWaterDevice, addEnergyDevice } from '../../../../controller/deviceController';
@@ -42,6 +42,29 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
         }
       } catch (error) {
         console.error('Error updating profile: ', error);
+      }
+    } else if(parent === 'change-password') {
+      try {
+        const isUnchanged = Object.keys(formData).every(
+          key => formData[key] === formData[key + 1]
+        );
+        if (isUnchanged) {
+          setDisplayFeedbackMessage('Unable to change password, old password is the same with new password.');
+          return;
+        }
+        const response = await handleChangePassword(
+          formData,
+          setLoading,
+          setDisplayFeedbackMessage,
+        );
+        if (checkServerResponse(response)) {
+          onClose();
+          saveUser(response);
+          alert('Password changed');
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error changing password: ', error);
       }
     } else if (parent === 'layout') {
       try {

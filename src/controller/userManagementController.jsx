@@ -57,6 +57,33 @@ export const handleResetPassword = async (email, otp, newPassword, setDisplayFee
   }
 };
 
+export const handleChangePassword = async (formData, setLoading, setDisplayFeedbackMessage) => {
+  const email = useStore.getState().user.email;
+  if(email === undefined) {
+    setDisplayFeedbackMessage('Please login to continue.')
+    return;
+  }
+  setLoading(true);
+  const payload = {
+    email: email,
+    oldPassword: formData.oldPassword,
+    newPassword: formData.newPassword
+  };
+  console.log(payload)
+  setLoading(true);
+  const url = `${API_URL}/user/change-password`;
+  try {
+    const response = await axios.patch(url, payload, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return response;
+  } catch (error) {
+    setDisplayFeedbackMessage('Failed to change password. Please try again.\n' + error);
+  }
+};
+
 export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedbackMessage, onClose) => {
   const userId = useStore.getState().user.userId;
   const url = `${API_URL}/user/update-user`;

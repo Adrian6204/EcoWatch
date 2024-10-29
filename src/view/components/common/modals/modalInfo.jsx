@@ -14,7 +14,7 @@ const ModalInfo = ({ device, onClose, setDisplayError }) => {
         const deviceType = device.device.type; 
         const deviceId = device.device.deviceId;
     
-        if(deviceName !== device.device.deviceName && consumptionValue !== (device.watts || device.flow_rate)) {
+        if(deviceName !== device.device.deviceName || consumptionValue !== (device.watts || device.flow_rate)) {
             const consumptionNumber = parseFloat(consumptionValue);
             const deviceDataWater = {
                 device_name: deviceName,

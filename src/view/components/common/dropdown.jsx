@@ -7,6 +7,7 @@ import { useStore } from '../../../zustand/userManagementState';
 const DropdownMenu = ({ label, items, onLogout }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
+  const [displayChangePasswordModal, setDisplayChangePasswordModal] = useState(false);
   const { user } = useStore();
 
   const formFields = useMemo(() => [
@@ -33,17 +34,38 @@ const DropdownMenu = ({ label, items, onLogout }) => {
     },
   ], [user]);
 
+  const formFieldsChangePassword = useMemo(() => [
+    {
+      label: 'Current Password',
+      name: 'oldPassword',
+      initialValue: '',
+      rules: [{ required: true, message: 'Please enter your current password.' }],
+      component: <Input type='password'/>,
+    },
+    {
+      label: 'New Password',
+      name: 'newPassword',
+      initialValue: '',
+      rules: [{ required: true, message: 'Please enter your new password.' }],
+      component: <Input type='password'/>,
+    },
+  ], [user]);
+
   const handleMenuClick = (key) => {
     if (key === '1') {
       setModalTitle('Update Profile');
       setModalVisible(true);
-    } else if (key === '2' && onLogout) {
+    } else if (key === '2' ) {
+      setModalTitle('Update Profile');
+      setDisplayChangePasswordModal(true);
+    } else if (key === '3' && onLogout) {
       onLogout();
     }
   };
 
   const closeModal = () => {
     setModalVisible(false);
+    setDisplayChangePasswordModal(false);
   };
 
   const handleFormSubmit = (values) => {
@@ -74,6 +96,15 @@ const DropdownMenu = ({ label, items, onLogout }) => {
           onClose={closeModal}
           onSubmit={handleFormSubmit}
           parent={'dropdown'}
+        />
+      )}
+      {displayChangePasswordModal && (
+        <UpdateProfile
+          title={modalTitle}
+          formFields={formFieldsChangePassword}
+          onClose={closeModal}
+          onSubmit={handleFormSubmit}
+          parent={'change-password'}
         />
       )}
     </>

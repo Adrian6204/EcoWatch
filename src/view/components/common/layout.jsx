@@ -93,6 +93,10 @@ const AppLayout = () => {
     },
     {
       key: '2',
+      label: 'Change Password',
+    },
+    {
+      key: '3',
       label: 'Logout',
     },
   ];

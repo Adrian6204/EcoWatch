@@ -2,12 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Input } from 'antd';
 import UpdateProfile from './modals/updateProfile';
-import { userManagementState } from '../../../zustand/userManagementState';
+import { useStore } from '../../../zustand/userManagementState';
 
 const DropdownMenu = ({ label, items, onLogout }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
-  const { user } = userManagementState();
+  const { user } = useStore();
 
   const formFields = useMemo(() => [
     {

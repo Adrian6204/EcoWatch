@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { userManagementState } from '../zustand/userManagementState';
+import { useStore } from '../zustand/userManagementState';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -58,7 +58,7 @@ export const handleResetPassword = async (email, otp, newPassword, setDisplayFee
 };
 
 export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedbackMessage, onClose) => {
-  const userId = userManagementState.getState().user.userId;
+  const userId = useStore.getState().user.userId;
   const url = `${API_URL}/user/update-user`;
 
   const updatedData = {
@@ -89,9 +89,9 @@ export const handleUpdateProfile = async (formData, setLoading, setDisplayFeedba
 };
 
 export const handleDeleteProfile = async (setLoading, navigate, setDisplayFeedbackMessage, onClose) => {
-  const userId = userManagementState.getState().user.userId;
+  const userId = useStore.getState().user.userId;
   const url = `${API_URL}/user/delete/${userId}?userId=${userId}`;
-  const { clearUser } = userManagementState.getState();
+  const { clearUser } = useStore.getState();
 
   try {
     setLoading(true);

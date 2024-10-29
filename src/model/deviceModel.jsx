@@ -1,8 +1,8 @@
-import { userManagementState } from "../zustand/userManagementState";
+import { useStore } from "../zustand/userManagementState";
 
 export const DeviceModel = {
     device_name: '',
-    added_by: userManagementState.getState().user.userId,
+    added_by: useStore.getState().user.userId,
     quantity: '',
     power: ''
 }

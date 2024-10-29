@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchTypeConsumptionData } from '../../../controller/typeConsumptionController';
 
 const WaterMeter = () => {
+    const [totalLiters, setTotalLiters] = useState(0);
     const [waterDevices, setWaterDevices] = useState([]);
     const [overallConsumption, setOverallConsumption] = useState(0);
     const [weeklyConsumption, setWeeklyConsumption] = useState([]);
@@ -9,23 +10,9 @@ const WaterMeter = () => {
     useEffect(() => {
         const getData = async () => {
             try {
-                const data = await fetchTypeConsumptionData('Water');
-                console.log(data)
-                setWaterDevices(data);
+                const response = await fetchTypeConsumptionData('Water');
+                setTotalLiters(response.data);
                 
-                const totalConsumption = data.reduce((acc, device) => acc + (device.hoursUsed * 10), 0);
-                setOverallConsumption(totalConsumption);
-
-                const weeklyDevices = groupByWeek(data);
-                const weeklyData = Object.entries(weeklyDevices).map(([week, devices]) => {
-                    const totalWeeklyConsumption = devices.reduce((acc, device) => acc + (device.hoursUsed * 10), 0).toFixed(2);
-                    return {
-                        week,
-                        devices: devices.map(device => device.name).join(', '),
-                        consumption: totalWeeklyConsumption,
-                    };
-                });
-                setWeeklyConsumption(weeklyData);
             } catch (error) {
                 console.error('Error fetching water consumption data:', error);
             }
@@ -34,22 +21,9 @@ const WaterMeter = () => {
         getData();
     }, []);
 
-    const groupByWeek = (devices) => {
-        const weeks = {};
-        devices.forEach(device => {
-            const date = new Date(device.dateAdded);
-            const week = `${date.getFullYear()}-W${Math.ceil((date.getDate() + 6 - date.getDay()) / 7)}`;
-
-            if (!weeks[week]) {
-                weeks[week] = [];
-            }
-            weeks[week].push(device);
-        });
-        return weeks;
-    };
-
-    const consumptionArray = (overallConsumption / 1000).toFixed(2);
-    const value = overallConsumption;
+    //get total number of hours for water type
+    const calculateWaterConsumption = parseInt(totalLiters);
+    const value = calculateWaterConsumption;
     const paddedValue = String(value).padStart(8, '0');
     const valueArray = paddedValue.split('').map(Number);
 
@@ -71,7 +45,7 @@ const WaterMeter = () => {
                 })}
             </div>
             <div className="mt-2 text-lg font-semibold">
-                Overall Consumption: {consumptionArray} Liters
+                Overall Consumption: {totalLiters.toFixed(2)} liters
             </div>
 
             <div className="mt-4">

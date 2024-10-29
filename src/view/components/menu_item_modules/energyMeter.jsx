@@ -2,30 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { fetchTypeConsumptionData } from '../../../controller/typeConsumptionController';
 
 const EnergyMeter = () => {
+    const [totalWatts, setTotalWatts] = useState(0);
     const [energyDevices, setEnergyDevices] = useState([]);
-    const [overallConsumption, setOverallConsumption] = useState(0);
     const [weeklyConsumption, setWeeklyConsumption] = useState([]);
 
     useEffect(() => {
         const getData = async () => {
             try {
-                const data = await fetchTypeConsumptionData('Electric');
-                console.log(data)
-                setEnergyDevices(data);
-                
-                const totalConsumption = data.reduce((acc, device) => acc + (device.hoursUsed * device.consumptionValue), 0);
-                setOverallConsumption(totalConsumption);
-
-                const weeklyDevices = groupByWeek(data);
-                const weeklyData = Object.entries(weeklyDevices).map(([week, devices]) => {
-                    const totalWeeklyConsumption = devices.reduce((acc, device) => acc + (device.hoursUsed * device.consumptionValue), 0).toFixed(2);
-                    return {
-                        week,
-                        devices: devices.map(device => device.name).join(', '),
-                        consumption: totalWeeklyConsumption,
-                    };
-                });
-                setWeeklyConsumption(weeklyData);
+                const response = await fetchTypeConsumptionData('Electric');
+                setTotalWatts(response.data);
             } catch (error) {
                 console.error('Error fetching energy consumption data:', error);
             }
@@ -34,22 +19,9 @@ const EnergyMeter = () => {
         getData();
     }, []);
 
-    const groupByWeek = (devices) => {
-        const weeks = {};
-        devices.forEach(device => {
-            const date = new Date(device.dateAdded);
-            const week = `${date.getFullYear()}-W${Math.ceil((date.getDate() + 6 - date.getDay()) / 7)}`;
-
-            if (!weeks[week]) {
-                weeks[week] = [];
-            }
-            weeks[week].push(device);
-        });
-        return weeks;
-    };
-
-    const consumptionArray = (overallConsumption / 1000).toFixed(2);
-    const value = overallConsumption;
+    //get total number of hours for electric type
+    const calculateWaterConsumption = parseInt(totalWatts);
+    const value = calculateWaterConsumption;
     const paddedValue = String(value).padStart(8, '0');
     const valueArray = paddedValue.split('').map(Number);
 
@@ -71,7 +43,7 @@ const EnergyMeter = () => {
                 })}
             </div>
             <div className="mt-2 text-lg font-semibold">
-                Overall Consumption: {consumptionArray} kWh
+                Overall Consumption: {totalWatts.toFixed(2)} watts
             </div>
 
             <div className="mt-4">

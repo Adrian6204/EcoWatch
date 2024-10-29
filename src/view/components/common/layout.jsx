@@ -18,10 +18,10 @@ import DevicesOtherOutlinedIcon from '@mui/icons-material/DevicesOtherOutlined';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import { devices } from '../static/sampleArr';
 import Notifications from './notifications';
-import { userManagementState } from '../../../zustand/userManagementState';
 import ErrorModal from './modals/errorModal';
 import OkModal from './modals/okModal';
 import UpdateProfile from './modals/updateProfile';
+import { useStore } from '../../../zustand/userManagementState';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -167,7 +167,7 @@ const AppLayout = () => {
   };
 
   const handleLogout = () => {
-    const { clearUser } = userManagementState.getState(); 
+    const { clearUser } = useStore.getState(); 
     clearUser();
     navigate('/usermanagement');
   };

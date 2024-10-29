@@ -6,10 +6,10 @@ import NotFound from './view/pages/404';
 import AppLayout from './view/components/common/layout';
 import ForgotPassword from './view/pages/forgotpassword';
 import OtpInput from './view/pages/otp';
-import { userManagementState } from './zustand/userManagementState';
+import { useStore } from './zustand/userManagementState';
 
 const PrivateRoute = ({ element: Component }) => {
-  const isAuthenticated = userManagementState.getState().isLoggedIn();
+  const isAuthenticated = useStore.getState().isLoggedIn();
   return isAuthenticated ? <Component /> : <Navigate to="/" />;
 };
 

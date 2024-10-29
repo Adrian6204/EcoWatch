@@ -2,17 +2,17 @@ import React, { useState } from 'react';
 import { Button, Modal, Form } from 'antd';
 import { handleUpdateProfile, handleDeleteProfile } from '../../../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
-import { userManagementState } from '../../../../zustand/userManagementState';
 import { checkServerResponse, saveUser } from '../functions/commonFunctions';
 import { addWaterDevice, addEnergyDevice } from '../../../../controller/deviceController';
 import { DeviceModel } from '../../../../model/deviceModel';
+import { useStore } from '../../../../zustand/userManagementState';
 
 const UpdateProfile = ({ formFields, title, onClose, parent }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [displayFeedbackMessage, setDisplayFeedbackMessage] = useState('');
-  const { clearUser } = userManagementState.getState(); 
+  const { clearUser } = useStore.getState(); 
   const initialFormValues = formFields.reduce((acc, field) => {
     acc[field.name] = field.initialValue;
     return acc;
@@ -49,7 +49,7 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
         const deviceData = {
           ...DeviceModel,
           device_name: formData.device_name,
-          added_by: userManagementState.getState().user.userId,
+          added_by: useStore.getState().user.userId,
           quantity: formData.quantity,
           power: formData.power
         };

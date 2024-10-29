@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { fetchConsumptionData, processConsumptionData } from '../../../controller/consumptionController';
+import { useStore } from '../../../zustand/userManagementState';
 
 Chart.register(...registerables);
 
@@ -16,15 +17,26 @@ const ViewReport = () => {
     totalWaterConsumption: 0
   });
 
+  const { updateTotals, getTotals } = useStore(state => ({
+    updateTotals: state.updateTotals,
+    getTotals: state.getTotals
+  }));
+
   useEffect(() => {
     const getData = async () => {
       const data = await fetchConsumptionData();
       const processedData = processConsumptionData(data);
       setConsumptionData(processedData);
+
+      // Update totals in Zustand store
+      updateTotals(data);
     };
 
     getData();
-  }, []);
+  }, [updateTotals]);
+
+  // Get totals from Zustand store
+  const { Electric, Water, Total } = getTotals();
 
   const {
     energyData,
@@ -88,8 +100,9 @@ const ViewReport = () => {
     <div className="p-6 bg-gray-100 rounded-lg min-h-screen">
       <div className="bg-white p-4 rounded shadow-md">
         <h2 className="text-xl font-semibold">Total Consumption</h2>
-        <p className="text-lg">Energy Consumption: {(totalEnergyConsumption || 0).toFixed(2)} kWh</p>
-        <p className="text-lg">Water Consumption: {(totalWaterConsumption || 0).toFixed(2)} liters</p>
+        <p className="text-lg">Energy Consumption: {(Electric || 0).toFixed(2)} kWh</p>
+        <p className="text-lg">Water Consumption: {(Water || 0).toFixed(2)} liters</p>
+        <p className="text-lg">Total Consumption: {(Total || 0).toFixed(2)} hours</p>
       </div>
       <div className="flex mt-8 space-x-4">
         <div className="w-1/2 h-64">

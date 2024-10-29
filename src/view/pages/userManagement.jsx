@@ -41,7 +41,7 @@ const UserManagement = () => {
       saveUser(response);
       setLoading(false);
       navigate('/dashboard');
-    } 
+    } else alert('Invalid credentials');
   };
 
   const handleSignInWrapper = async (e) => {
@@ -58,7 +58,11 @@ const UserManagement = () => {
       saveUser(response);
       setLoading(false);
       navigate('/dashboard');
-    } 
+    } else {
+      alert('Invalid credentials');
+      setLoading(false);
+      navigate('/usermanagement');
+    }
   };
 
   return (

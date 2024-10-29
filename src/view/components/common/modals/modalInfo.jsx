@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Button, Modal, Input } from 'antd';
+import { deleteDevice } from '../../../../controller/deviceController';
+import { checkServerResponse } from '../functions/commonFunctions';
 
-const ModalInfo = ({ device, onClose }) => {
+const ModalInfo = ({ device, onClose, setDisplayError }) => {
     const [loading, setLoading] = useState(false);
     const [isEditable, setIsEditable] = useState(false);
 
     const handleOk = () => {
         setLoading(true);
-        // Add your logic to handle the submission here
-        setLoading(false); // Reset loading after submission
+        setLoading(false); 
     };
 
     const handleCancel = () => {
@@ -16,11 +17,21 @@ const ModalInfo = ({ device, onClose }) => {
         onClose(); 
     };
 
+    const handleDelete = async () => {
+        setLoading(true);
+        const response = await deleteDevice(device.device.deviceId, setDisplayError);
+        if(checkServerResponse(response)) {
+            alert(response.data);
+        }
+        setLoading(false);
+        onClose();
+    };
+
     return (
         <Modal
             centered
             open={true} 
-            title={`${device?.name} Information`} 
+            title={`${device?.device.deviceName} Information`} 
             onOk={handleOk}
             onCancel={handleCancel}
             footer={[
@@ -32,7 +43,7 @@ const ModalInfo = ({ device, onClose }) => {
                     <>
                         <Button
                             key="search"
-                            href={`https://www.google.com/search?q=${device?.name}`}
+                            href={`https://www.google.com/search?q=${device?.device.deviceName}`}
                             type="primary"
                             loading={loading}
                             onClick={handleOk}
@@ -43,7 +54,7 @@ const ModalInfo = ({ device, onClose }) => {
                         <Button key="save" onClick={() => { setIsEditable(true); }} style={{ backgroundColor: '#001529', color: 'white' }}>
                             Update Device
                         </Button>
-                        <Button key="delete" onClick={() => {onClose()}} style={{ backgroundColor: '#001529', color: 'white' }}>
+                        <Button key="delete" onClick={handleDelete} style={{ backgroundColor: '#001529', color: 'white' }}>
                             Delete Device
                         </Button>
                     </>
@@ -52,11 +63,11 @@ const ModalInfo = ({ device, onClose }) => {
         >
             {device && (
                 <div className="grid grid-cols-2 gap-3 text-left">
-                    <div>Device ID: {isEditable ? <Input defaultValue={device.deviceID} /> : device.deviceID}</div>
-                    <div>Type: {isEditable ? <Input defaultValue={device.type} /> : device.type}</div>
-                    <div>Consumption Value: {isEditable ? <Input defaultValue={device.consumptionValue} /> : device.consumptionValue}</div>
-                    <div>Hours Used: {isEditable ? <Input defaultValue={device.hoursUsed} /> : device.hoursUsed}</div>
-                    <div>Author: {isEditable ? <Input defaultValue={device.author} /> : device.author}</div>
+                    <div>Device ID: {isEditable ? <Input defaultValue={device.device.deviceId} /> : device.device.deviceId}</div>
+                    <div>Type: {isEditable ? <Input defaultValue={device.device.type} /> : device.device.type}</div>
+                    <div>Consumption Value: {isEditable ? <Input defaultValue={device.watts || device.flow_rate} /> : (device.watts || device.flow_rate)}</div>
+                    <div>Installation Date: {isEditable ? <Input defaultValue={device.device.installationDate} /> : device.device.installationDate}</div>
+                    <div>Added By: {isEditable ? <Input defaultValue={`${device.device.added_by.firstname} ${device.device.added_by.lastname}`} /> : `${device.device.added_by.firstname} ${device.device.added_by.lastname}`}</div>
                 </div>
             )}
         </Modal>

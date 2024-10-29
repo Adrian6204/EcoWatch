@@ -1,11 +1,26 @@
-import React, { useState } from 'react';
-import { devices } from '../static/sampleArr';
+import React, { useState, useEffect } from 'react';
 import DeviceCard from '../common/deviceCards';
 import ModalInfo from '../common/modals/modalInfo';
+import { getAllDevices } from '../../../controller/deviceController';
 
 const DeviceManagement = () => {
+    const [devices, setDevices] = useState([]);
     const [isModalVisible, setModalVisible] = useState(false);
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const [displayError, setDisplayError] = useState('');
+
+    useEffect(() => {
+        const fetchDevices = async () => {
+            try {
+                const deviceList = await getAllDevices(setDisplayError);
+                setDevices(deviceList);
+            } catch (error) {
+                console.error('Error fetching devices: ', error);
+            }
+        };
+
+        fetchDevices();
+    }, [devices]);
 
     const showModal = (device) => {
         setSelectedDevice(device);
@@ -15,9 +30,10 @@ const DeviceManagement = () => {
     return (
         <div className="flex flex-wrap gap-5">
             {devices.map(record => (
-                <DeviceCard key={record.deviceID} record={record} onShowModal={() => showModal(record)} />
+                <DeviceCard key={record.device.deviceId} record={record} onShowModal={() => showModal(record)} />
             ))}
             {isModalVisible && <ModalInfo device={selectedDevice} onClose={() => setModalVisible(false)} />}
+            {displayError && <div style={{ color: 'red', marginTop: '10px' }}>{displayError}</div>}
         </div>
     );
 }

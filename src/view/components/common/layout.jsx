@@ -102,30 +102,35 @@ const AppLayout = () => {
       setModalTitle('Add Device');
       setFormFields([
         {
-          label: 'Device Name',
-          name: 'deviceName',
-          rules: [{ required: true, message: 'Please enter the device name!' }],
-          component: <Input placeholder="Enter device name" />,
-        },
-        {
           label: 'Device Type',
-          name: 'deviceType',
+          name: 'device_type',
           rules: [{ required: true, message: 'Please select the device type!' }],
           component: (
             <Select placeholder="Select device type">
-              <Select.Option value="energy">Energy</Select.Option>
+              <Select.Option value="energy">Electronic</Select.Option>
               <Select.Option value="water">Water</Select.Option>
             </Select>
           ),
         },
         {
-          label: 'Wattage',
-          name: 'wattage',
-          rules: [{ required: true, message: 'Please enter the wattage!', type: 'number', min: 0 }],
-          component: <Input type="number" placeholder="Enter wattage" />,
+          label: 'Device Name',
+          name: 'device_name',
+          rules: [{ required: true, message: 'Please enter the device name!' }],
+          component: <Input placeholder="Enter device name" />,
+        },
+        {
+          label: 'Quantity',
+          name: 'quantity',
+          rules: [{ required: true, message: 'Please enter the quantity!', type: 'number', min: 1  }],
+          component: <Input placeholder="Enter quantity" />,
+        },
+        {
+          label: 'Wattage/Flowrate',
+          name: 'power',
+          rules: [{ required: true, message: 'Please enter the value!', type: 'number', min: 0 }],
+          component: <Input type="power" placeholder="Enter wattage/flowrate" />,
         },
       ]);
-      setModalVisible(true);
     } else if (selectedKey === '4') {
       setModalTitle('View Report by Timeline');
       setFormFields([
@@ -153,8 +158,8 @@ const AppLayout = () => {
           component: <DatePicker style={{ width: '100%' }} placeholder="Select end date" />,
         },
       ]);
-      setModalVisible(true);
     }
+    setModalVisible(true);
   };
   
   const closeModal = () => {
@@ -286,6 +291,7 @@ const AppLayout = () => {
           formFields={formFields}
           onClose={closeModal}
           onSubmit={handleFormSubmit}
+          parent={'layout'}
         />
       )}
     </Layout>

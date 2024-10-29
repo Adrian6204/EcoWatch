@@ -4,8 +4,10 @@ import { handleUpdateProfile, handleDeleteProfile } from '../../../../controller
 import { useNavigate } from 'react-router-dom';
 import { userManagementState } from '../../../../zustand/userManagementState';
 import { checkServerResponse, saveUser } from '../functions/commonFunctions';
+import { addWaterDevice, addEnergyDevice } from '../../../../controller/deviceController';
+import { DeviceModel } from '../../../../model/deviceModel';
 
-const UpdateProfile = ({ formFields, title, onClose }) => {
+const UpdateProfile = ({ formFields, title, onClose, parent }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
@@ -16,35 +18,68 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
     return acc;
   }, {});
 
-  const handleOk = async () => {
-    try {
-      const formData = form.getFieldsValue();
-      
-      const isUnchanged = Object.keys(formData).every(
-        key => formData[key] === initialFormValues[key]
-      );
+  const handleOk = async (parent) => {
+    const formData = form.getFieldsValue();
 
-      if (isUnchanged) {
-        setDisplayFeedbackMessage('Unable to update profile, no profile updates were made.');
-        return;
+    if (parent === 'dropdown') {
+      try {
+        const isUnchanged = Object.keys(formData).every(
+          key => formData[key] === initialFormValues[key]
+        );
+        if (isUnchanged) {
+          setDisplayFeedbackMessage('Unable to update profile, no profile updates were made.');
+          return;
+        }
+        const response = await handleUpdateProfile(
+          formData,
+          setLoading,
+          setDisplayFeedbackMessage,
+          onClose,
+        );
+        if (checkServerResponse(response)) {
+          saveUser(response);
+          alert('Profile updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating profile: ', error);
       }
+    } else if (parent === 'layout') {
+      try {
+        const deviceType = formData.device_type;
+        const deviceData = {
+          ...DeviceModel,
+          device_name: formData.device_name,
+          added_by: userManagementState.getState().user.userId,
+          quantity: formData.quantity,
+          power: formData.power
+        };
 
-      const response = await handleUpdateProfile(
-        formData,
-        setLoading,
-        setDisplayFeedbackMessage,
-        onClose,
-      );
+        let response;
+        if (deviceType === 'water') {
+          response = await addWaterDevice({
+            device_name: deviceData.device_name,
+            added_by: deviceData.added_by,
+            quantity: deviceData.quantity,
+            flow_rate: deviceData.power,
+          }, setDisplayFeedbackMessage);
+        } else if (deviceType === 'energy') {
+          response = await addEnergyDevice({
+            device_name: deviceData.device_name,
+            added_by: deviceData.added_by,
+            quantity: deviceData.quantity,
+            watts: deviceData.power,
+          }, setDisplayFeedbackMessage);
+        }
 
-      if(checkServerResponse(response)) {
-        saveUser(response);
-        alert('Profile updated successfully');
+        if (checkServerResponse(response)) {
+          onClose();
+          alert('Device added successfully');
+        }
+      } catch (error) {
+        console.error('Error adding device: ', error);
       }
-      
-    } catch (error) {
-      console.error('Error updating profile:', error);
     }
-  };
+  };  
 
   const handleDelete = async () => {
     try {
@@ -69,7 +104,7 @@ const UpdateProfile = ({ formFields, title, onClose }) => {
             key="submit" 
             type="primary" 
             loading={loading} 
-            onClick={handleOk}
+            onClick={() => handleOk(parent)}
             style={{ backgroundColor: '#001529' }}
           >
             Submit

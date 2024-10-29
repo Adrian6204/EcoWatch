@@ -73,6 +73,7 @@ const DropdownMenu = ({ label, items, onLogout }) => {
           formFields={formFields}
           onClose={closeModal}
           onSubmit={handleFormSubmit}
+          parent={'dropdown'}
         />
       )}
     </>

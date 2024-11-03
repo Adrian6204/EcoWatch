@@ -1,128 +1,126 @@
-import React, { useEffect, useState } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
-import { Chart, registerables } from 'chart.js';
-import { fetchConsumptionData, processConsumptionData } from '../../../controller/consumptionController';
-import { useStore } from '../../../zustand/userManagementState';
+import React from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { parseISO, startOfYear, startOfMonth, startOfWeek, getWeek } from 'date-fns';
 
-Chart.register(...registerables);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const ViewReport = () => {
-  const [consumptionData, setConsumptionData] = useState({
-    energyData: [],
-    waterData: [],
-    labels: [],
-    monthlyEnergyConsumption: [],
-    monthlyWaterConsumption: [],
-    totalEnergyConsumption: 0,
-    totalWaterConsumption: 0
-  });
+const ViewReport = ({ data }) => {
+  console.log('Raw Data:', data);
 
-  const { updateTotals, getTotals } = useStore(state => ({
-    updateTotals: state.updateTotals,
-    getTotals: state.getTotals
-  }));
+  const calculateConsumption = (type) => {
+    const filteredData = data.filter(item => item.device.type === type);
+    const consumption = filteredData.reduce((acc, curr) => acc + curr.usage, 0);
+    console.log(`${type} Consumption Data:`, filteredData);
+    return consumption.toFixed(2);
+  };
 
-  useEffect(() => {
-    const getData = async () => {
-      const data = await fetchConsumptionData();
-      const processedData = processConsumptionData(data);
-      setConsumptionData(processedData);
+  const groupDataByTimeframe = (timeframe) => {
+    const currentTime = new Date();
+    const grouped = data.reduce((acc, curr) => {
+      const deviceOn = parseISO(curr.deviceIsOn);
+      let key;
+      if (timeframe === 'yearly') {
+        key = startOfYear(deviceOn).getFullYear();
+      } else if (timeframe === 'monthly') {
+        key = `${startOfMonth(deviceOn).getFullYear()}-${startOfMonth(deviceOn).getMonth() + 1}`;
+      } else if (timeframe === 'weekly') {
+        key = `${startOfWeek(deviceOn, { weekStartsOn: 1 }).getFullYear()}-${getWeek(deviceOn, { weekStartsOn: 1 })}`;
+      }
+      acc[key] = (acc[key] || 0) + curr.usage;
+      return acc;
+    }, {});
+    console.log(`${timeframe} Grouped Data:`, grouped);
+    return grouped;
+  };
 
-      // Update totals in Zustand store
-      updateTotals(data);
+  const getChartData = (timeframe) => {
+    const groupedData = groupDataByTimeframe(timeframe);
+    const labels = Object.keys(groupedData);
+    const usage = Object.values(groupedData);
+
+    return {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Usage (kWh)',
+          data: usage,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
     };
-
-    getData();
-  }, [updateTotals]);
-
-  // Get totals from Zustand store
-  const { Electric, Water, Total } = getTotals();
-
-  const {
-    energyData,
-    waterData,
-    labels,
-    monthlyEnergyConsumption,
-    monthlyWaterConsumption,
-    totalEnergyConsumption,
-    totalWaterConsumption
-  } = consumptionData;
-
-  const barData = {
-    labels,
-    datasets: [
-      {
-        label: 'Energy Consumption (kWh)',
-        data: energyData,
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-      {
-        label: 'Water Consumption (liters)',
-        data: waterData,
-        backgroundColor: 'rgba(153, 102, 255, 0.6)',
-      },
-    ],
   };
 
-  const lineData = {
-    labels: [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ],
-    datasets: [
-      {
-        label: 'Monthly Energy Consumption (kWh)',
-        data: monthlyEnergyConsumption,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        fill: true,
-      },
-      {
-        label: 'Monthly Water Consumption (liters)',
-        data: monthlyWaterConsumption,
-        borderColor: 'rgba(153, 102, 255, 1)',
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        fill: true,
-      },
-    ],
+  const getDeviceChartData = () => {
+    const devices = Array.from(new Set(data.map(item => item.device.deviceName)));
+    const usage = devices.map(deviceName => {
+      const deviceData = data.filter(item => item.device.deviceName === deviceName);
+      console.log(`Data for ${deviceName}:`, deviceData);
+      return deviceData.reduce((acc, curr) => acc + curr.usage, 0);
+    });
+
+    return {
+      labels: devices,
+      datasets: [
+        {
+          label: 'Usage (kWh)',
+          data: usage,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
   };
 
-  const options = {
-    scales: {
-      y: {
-        beginAtZero: true,
+  const chartOptions = (title) => ({
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: title,
       },
     },
-    maintainAspectRatio: false,
-  };
+  });
+
+  const electricConsumption = calculateConsumption('Electric');
+  const waterConsumption = calculateConsumption('Water');
 
   return (
-    <div className="p-6 bg-gray-100 rounded-lg min-h-screen">
-      <div className="bg-white p-4 rounded shadow-md">
-        <h2 className="text-xl font-semibold">Total Consumption</h2>
-        <p className="text-lg">Energy Consumption: {(Electric || 0).toFixed(2)} kWh</p>
-        <p className="text-lg">Water Consumption: {(Water || 0).toFixed(2)} liters</p>
-        <p className="text-lg">Total Consumption: {(Total || 0).toFixed(2)} hours</p>
+    <div>
+      <h1 className='mb-3 text-base font-semibold'>Device Usage Report</h1>
+      <div className='mb-3'>
+        <h2 className='text-sm font-semibold'>Electric Consumption: {electricConsumption} watts</h2>
+        <h2 className='text-sm font-semibold'>Water Consumption: {waterConsumption} liters</h2>
       </div>
-      <div className="flex mt-8 space-x-4">
-        <div className="w-1/2 h-64">
-          <h2 className="text-xl font-semibold mb-2">Consumption Graph</h2>
-          <Bar data={barData} options={options} />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getChartData('yearly')} options={chartOptions('Yearly Energy Consumption')} />
+          </div>
         </div>
-        <div className="w-1/2 h-64">
-          <h2 className="text-xl font-semibold mb-2">Yearly Consumption Timeline</h2>
-          <Line data={lineData} options={options} />
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getChartData('monthly')} options={chartOptions('Monthly Energy Consumption')} />
+          </div>
         </div>
       </div>
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold">Detailed Consumption by Device</h2>
-        <ul className="list-disc pl-6">
-          {labels.map((label, index) => (
-            <li key={index} className="mb-2">
-              <span className="font-medium">{label}</span>: {(energyData[index] || waterData[index] || 0).toFixed(2)} {energyData[index] ? 'kWh' : 'liters'}
-            </li>
-          ))}
-        </ul>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getChartData('weekly')} options={chartOptions('Weekly Energy Consumption')} />
+          </div>
+        </div>
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getDeviceChartData()} options={chartOptions('Energy Consumption Per Device')} />
+          </div>
+        </div>
       </div>
     </div>
   );

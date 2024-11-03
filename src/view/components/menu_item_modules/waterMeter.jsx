@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTypeConsumptionData } from '../../../controller/typeConsumptionController';
 
-const WaterMeter = () => {
+const WaterMeter = ({ data }) => {
     const [totalLiters, setTotalLiters] = useState(0);
-    const [waterDevices, setWaterDevices] = useState([]);
-    const [overallConsumption, setOverallConsumption] = useState(0);
-    const [weeklyConsumption, setWeeklyConsumption] = useState([]);
 
     useEffect(() => {
         const getData = async () => {
             try {
                 const response = await fetchTypeConsumptionData('Water');
                 setTotalLiters(response.data);
-                
             } catch (error) {
                 console.error('Error fetching water consumption data:', error);
             }
@@ -21,11 +17,12 @@ const WaterMeter = () => {
         getData();
     }, []);
 
-    //get total number of hours for water type
     const calculateWaterConsumption = parseInt(totalLiters);
     const value = calculateWaterConsumption;
     const paddedValue = String(value).padStart(8, '0');
     const valueArray = paddedValue.split('').map(Number);
+
+    const waterDevices = data.filter(item => item.device.type === 'Water');
 
     return (
         <div className="flex flex-col items-center">
@@ -48,27 +45,36 @@ const WaterMeter = () => {
                 Overall Consumption: {totalLiters.toFixed(2)} liters
             </div>
 
-            <div className="mt-4">
-                <h2 className="text-lg font-semibold">Weekly Water Consumption</h2>
-                <table className="mt-2 border border-gray-300">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-300 p-2">Week</th>
-                            <th className="border border-gray-300 p-2">Devices</th>
-                            <th className="border border-gray-300 p-2">Consumption (Liters)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {weeklyConsumption.map((weekData, index) => (
-                            <tr key={index}>
-                                <td className="border border-gray-300 p-2">{weekData.week}</td>
-                                <td className="border border-gray-300 p-2">{weekData.devices}</td>
-                                <td className="border border-gray-300 p-2">{weekData.consumption}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {
+                data ? (
+                    <div className="w-full mt-4">
+                        <table className="min-w-full border-collapse border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100 border-b">
+                                    <th className="px-4 py-2 border">Device</th>
+                                    <th className="px-4 py-2 border">Usage</th>
+                                    <th className="px-4 py-2 border">Usage (hrs)</th>
+                                    <th className="px-4 py-2 border">Device Is On</th>
+                                    <th className="px-4 py-2 border">Device Is Off</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {waterDevices.map((item) => (
+                                    <tr key={item.id}>
+                                        <td className="px-4 py-2 border">{item.device.deviceName}</td>
+                                        <td className="px-4 py-2 border">{item.usage.toFixed(2)}</td>
+                                        <td className="px-4 py-2 border">{item.usageInHrs.toFixed(2)}</td>
+                                        <td className="px-4 py-2 border">{new Date(item.deviceIsOn).toLocaleString()}</td>
+                                        <td className="px-4 py-2 border">{item.deviceIsOff ? new Date(item.deviceIsOff).toLocaleString() : 'N/A'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center mt-2">No data available</div>
+                )
+            }
         </div>
     );
 };

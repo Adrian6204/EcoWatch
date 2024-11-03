@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { fetchTypeConsumptionData } from '../../../controller/typeConsumptionController';
 
-const EnergyMeter = () => {
+const EnergyMeter = ({ data }) => {
     const [totalWatts, setTotalWatts] = useState(0);
-    const [energyDevices, setEnergyDevices] = useState([]);
-    const [weeklyConsumption, setWeeklyConsumption] = useState([]);
 
     useEffect(() => {
         const getData = async () => {
@@ -19,11 +17,12 @@ const EnergyMeter = () => {
         getData();
     }, []);
 
-    //get total number of hours for electric type
     const calculateWaterConsumption = parseInt(totalWatts);
     const value = calculateWaterConsumption;
     const paddedValue = String(value).padStart(8, '0');
     const valueArray = paddedValue.split('').map(Number);
+
+    const electricDevices = data.filter(item => item.device.type === 'Electric');
 
     return (
         <div className="flex flex-col items-center">
@@ -46,27 +45,36 @@ const EnergyMeter = () => {
                 Overall Consumption: {totalWatts.toFixed(2)} watts
             </div>
 
-            <div className="mt-4">
-                <h2 className="text-lg font-semibold">Weekly Energy Consumption</h2>
-                <table className="mt-2 border border-gray-300">
-                    <thead>
-                        <tr>
-                            <th className="border border-gray-300 p-2">Week</th>
-                            <th className="border border-gray-300 p-2">Devices</th>
-                            <th className="border border-gray-300 p-2">Consumption (kWh)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {weeklyConsumption.map((weekData, index) => (
-                            <tr key={index}>
-                                <td className="border border-gray-300 p-2">{weekData.week}</td>
-                                <td className="border border-gray-300 p-2">{weekData.devices}</td>
-                                <td className="border border-gray-300 p-2">{weekData.consumption}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+            {
+                data ? (
+                    <div className="w-full mt-4">
+                        <table className="min-w-full border-collapse border border-gray-200">
+                            <thead>
+                                <tr className="bg-gray-100 border-b">
+                                    <th className="px-4 py-2 border">Device</th>
+                                    <th className="px-4 py-2 border">Usage</th>
+                                    <th className="px-4 py-2 border">Usage (hrs)</th>
+                                    <th className="px-4 py-2 border">Device Is On</th>
+                                    <th className="px-4 py-2 border">Device Is Off</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {electricDevices.map((item) => (
+                                    <tr key={item.id}>
+                                        <td className="px-4 py-2 border">{item.device.deviceName}</td>
+                                        <td className="px-4 py-2 border">{item.usage.toFixed(2)}</td>
+                                        <td className="px-4 py-2 border">{item.usageInHrs.toFixed(2)}</td>
+                                        <td className="px-4 py-2 border">{new Date(item.deviceIsOn).toLocaleString()}</td>
+                                        <td className="px-4 py-2 border">{item.deviceIsOff ? new Date(item.deviceIsOff).toLocaleString() : 'N/A'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    <div className="text-center mt-2">No data available</div>
+                )
+            }
         </div>
     );
 };

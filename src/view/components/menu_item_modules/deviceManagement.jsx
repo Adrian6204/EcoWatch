@@ -29,11 +29,17 @@ const DeviceManagement = () => {
 
     return (
         <div className="flex flex-wrap gap-5">
-            {devices.map(record => (
-                <DeviceCard key={record.device.deviceId} record={record} onShowModal={() => showModal(record)} />
-            ))}
-            {isModalVisible && <ModalInfo device={selectedDevice} onClose={() => setModalVisible(false)} />}
-            {displayError && <div style={{ color: 'red', marginTop: '10px' }}>{displayError}</div>}
+            {devices ? (
+                <>
+                    {devices.map(record => (
+                        <DeviceCard key={record.device.deviceId} record={record} onShowModal={() => showModal(record)} />
+                    ))}
+                    {isModalVisible && <ModalInfo device={selectedDevice} onClose={() => setModalVisible(false)} />}
+                    {displayError && <div style={{ color: 'red', marginTop: '10px' }}>{displayError}</div>}
+                </>
+            ) : (
+                <div>No devices added</div>
+            )}
         </div>
     );
 }

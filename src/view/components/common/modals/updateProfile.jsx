@@ -6,21 +6,22 @@ import { checkServerResponse, saveUser } from '../functions/commonFunctions';
 import { addWaterDevice, addEnergyDevice } from '../../../../controller/deviceController';
 import { DeviceModel } from '../../../../model/deviceModel';
 import { useStore } from '../../../../zustand/userManagementState';
+import UsageGraph from '../energyConsumptionByTimeline';
 
-const UpdateProfile = ({ formFields, title, onClose, parent }) => {
+const UpdateProfile = ({ formFields, title, onClose, parent, data }) => {
   const [loading, setLoading] = useState(false);
+  const [displayTimelineModal, setDisplayTimelineModal] = useState(false);
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [displayFeedbackMessage, setDisplayFeedbackMessage] = useState('');
   const { clearUser } = useStore.getState(); 
+  const formData = form.getFieldsValue();
   const initialFormValues = formFields.reduce((acc, field) => {
     acc[field.name] = field.initialValue;
     return acc;
   }, {});
 
   const handleOk = async (parent) => {
-    const formData = form.getFieldsValue();
-
     if (parent === 'dropdown') {
       try {
         const isUnchanged = Object.keys(formData).every(
@@ -102,6 +103,8 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
       } catch (error) {
         console.error('Error adding device: ', error);
       }
+    } else if(parent === 'view-report') {
+      setDisplayTimelineModal(true);
     }
   };  
 
@@ -117,7 +120,21 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
     }
   };
 
+  const handleTimelineCancel = () => {
+    setDisplayTimelineModal(false)
+    onClose();
+  }
+
   return (
+    displayTimelineModal ? (
+        <Modal
+        centered
+        open={displayTimelineModal}
+        title="Energy Consumption by Timeline"
+        onCancel={handleTimelineCancel}>
+          <UsageGraph formData={formData} data={data} />
+        </Modal>
+    ) : (
       <Modal
         centered
         open={true}
@@ -163,8 +180,9 @@ const UpdateProfile = ({ formFields, title, onClose, parent }) => {
           ))}
           {displayFeedbackMessage && <div style={{ color: 'red', marginBottom: '10px' }}>{displayFeedbackMessage}</div>}
         </Form>
-      </Modal>    
-  );
+      </Modal>
+    )
+  );  
 };
 
 export default UpdateProfile;

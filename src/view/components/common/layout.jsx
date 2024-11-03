@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -19,9 +19,9 @@ import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import { devices } from '../static/sampleArr';
 import Notifications from './notifications';
 import ErrorModal from './modals/errorModal';
-import OkModal from './modals/okModal';
 import UpdateProfile from './modals/updateProfile';
 import { useStore } from '../../../zustand/userManagementState';
+import { fetchConsumptionData } from '../../../controller/consumptionController';
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -33,7 +33,17 @@ const AppLayout = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [formFields, setFormFields] = useState([]);
   const [errorModal, setErrorModal] = useState(false);
+  const [data, setData] = useState();
+  const [parent, setParent] = useState('layout');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await fetchConsumptionData();
+      setData(response);
+    };
+    getData();
+  }, []);
 
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -48,11 +58,11 @@ const AppLayout = () => {
       case '1':
         return <DeviceManagement />;
       case '2':
-        return <WaterMeter />;
+        return <WaterMeter data={data}/>;
       case '3':
-        return <EnergyMeter />;
+        return <EnergyMeter data={data}/>;
       case '4':
-        return <ViewReport />;
+        return <ViewReport data={data}/>;
       default:
         return null;
     }
@@ -136,6 +146,7 @@ const AppLayout = () => {
         },
       ]);
     } else if (selectedKey === '4') {
+      setParent('view-report')
       setModalTitle('View Report by Timeline');
       setFormFields([
         {
@@ -295,7 +306,8 @@ const AppLayout = () => {
           formFields={formFields}
           onClose={closeModal}
           onSubmit={handleFormSubmit}
-          parent={'layout'}
+          parent={parent}
+          data={data}
         />
       )}
     </Layout>

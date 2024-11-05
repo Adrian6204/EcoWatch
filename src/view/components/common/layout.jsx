@@ -147,7 +147,7 @@ const AppLayout = () => {
       ]);
     } else if (selectedKey === '4') {
       setParent('view-report')
-      setModalTitle('View Report by Timeline');
+      setModalTitle('View Items by Timeline');
       setFormFields([
         {
           label: 'Type',
@@ -155,8 +155,8 @@ const AppLayout = () => {
           rules: [{ required: true, message: 'Please select a type!' }],
           component: (
             <Select placeholder="Select type">
-              <Select.Option value="energy">Energy</Select.Option>
-              <Select.Option value="water">Water</Select.Option>
+              <Select.Option value="Electric">Electric</Select.Option>
+              <Select.Option value="Water">Water</Select.Option>
             </Select>
           ),
         },
@@ -284,7 +284,7 @@ const AppLayout = () => {
                 className="ml-4 bg-primary text-white"
                 onClick={openModal}
               >
-                View Report by Timeline
+                View Items by Timeline
               </Button>
             )}
           </Title>

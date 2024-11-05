@@ -90,3 +90,18 @@ export const updateEnergyDevice = async (deviceId, deviceData, setDisplayError) 
     setDisplayError('Error updating energy device. Please try again. ' + error);
   }
 };
+
+export const viewReportByTimeline = async (fromDate, toDate, type) => {
+  try {
+    const response = await axios.get(`${API_URL}/device/filter`, {
+      params: {
+        fromDate,
+        toDate,
+        type
+      }
+    });
+    return response;
+  } catch (error) {
+    console.error('Incorrect credentials. Please try again.');
+  }
+};

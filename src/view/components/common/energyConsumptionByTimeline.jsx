@@ -1,9 +1,9 @@
-import React from 'react';
-
+import React, { useEffect, useState } from 'react';
+import { viewReportByTimeline } from '../../../controller/deviceController';
 
 const UsageGraph = ({ data, formData }) => {
   const { fromDate, toDate, type } = formData;
-  
+  const [timelineData, setTimelineData] = useState([]);
   const formatDate = (date) => {
     return new Date(date).toISOString().split('T')[0];
   };
@@ -11,43 +11,46 @@ const UsageGraph = ({ data, formData }) => {
   const formattedFromDate = formatDate(fromDate);
   const formattedToDate = formatDate(toDate);
 
-  const filteredDevices = data.filter((item) => {
-    const deviceDate = new Date(item.device.installationDate);
-    return (
-      item.device.type === type &&
-      deviceDate >= formattedFromDate &&
-      deviceDate <= formattedToDate
-    );
-  });
+  useEffect(() => {
+    const getData = async () => {
+      const response = await viewReportByTimeline(formattedFromDate, formattedToDate, type);
+      console.log(response.data)
+      setTimelineData(response.data);
+    };
 
-  console.log(filteredDevices)
+    getData();
+  }, []);
 
   return (
     <div>
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device ID</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device Name</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Watts</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Installation Date</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usage</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device On</th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device Off</th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {filteredDevices.map((device) => (
-            <tr key={device.id}>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.device.deviceId}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.deviceName}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.type}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.installationDate}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.usage.toFixed(2)}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.deviceIsOn}</td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.deviceIsOff || 'N/A'}</td>
+          {timelineData.length === 0 ? (
+            <tr>
+              <td colSpan="6" className="text-center">No data available for the selected period.</td>
             </tr>
-          ))}
+          ) : (
+            timelineData.map((device) => (
+              <tr key={device.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.device.deviceId}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.deviceName}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.type}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.watts}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.installationDate}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.deviceOn ? 'On' : 'Off'}</td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

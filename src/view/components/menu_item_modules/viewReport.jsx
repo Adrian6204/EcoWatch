@@ -12,7 +12,7 @@ const ViewReport = ({ data }) => {
     const filteredData = data.filter(item => item.device.type === type);
     const consumption = filteredData.reduce((acc, curr) => acc + curr.usage, 0);
     console.log(`${type} Consumption Data:`, filteredData);
-    return consumption.toFixed(2);
+    return consumption.toFixed(2);  
   };
 
   const groupDataByTimeframe = (timeframe) => {

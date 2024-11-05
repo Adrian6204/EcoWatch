@@ -3,7 +3,7 @@ import { Button, Modal, Form } from 'antd';
 import { handleUpdateProfile, handleDeleteProfile, handleChangePassword } from '../../../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
 import { checkServerResponse, saveUser } from '../functions/commonFunctions';
-import { addWaterDevice, addEnergyDevice } from '../../../../controller/deviceController';
+import { addWaterDevice, addEnergyDevice, viewReportByTimeline } from '../../../../controller/deviceController';
 import { DeviceModel } from '../../../../model/deviceModel';
 import { useStore } from '../../../../zustand/userManagementState';
 import UsageGraph from '../energyConsumptionByTimeline';
@@ -127,13 +127,16 @@ const UpdateProfile = ({ formFields, title, onClose, parent, data }) => {
 
   return (
     displayTimelineModal ? (
-        <Modal
-        centered
-        open={displayTimelineModal}
-        title="Energy Consumption by Timeline"
-        onCancel={handleTimelineCancel}>
-          <UsageGraph formData={formData} data={data} />
-        </Modal>
+    <Modal
+      centered
+      open={displayTimelineModal}
+      title="Energy Consumption by Timeline"
+      onOk={handleTimelineCancel}
+      onCancel={handleTimelineCancel}
+      width={770}
+    >
+      <UsageGraph formData={formData} data={data} />
+    </Modal>
     ) : (
       <Modal
         centered

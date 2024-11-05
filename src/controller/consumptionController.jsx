@@ -47,4 +47,6 @@ const processConsumptionData = (data) => {
   };
 };
 
+
+
 export { fetchConsumptionData, processConsumptionData };

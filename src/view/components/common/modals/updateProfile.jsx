@@ -69,6 +69,7 @@ const UpdateProfile = ({ formFields, title, onClose, parent, data }) => {
       }
     } else if (parent === 'layout') {
       try {
+        const formData = await form.validateFields();
         const deviceType = formData.device_type;
         const deviceData = {
           ...DeviceModel,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Modal, Form } from 'antd';
 import { handleUpdateProfile, handleDeleteProfile, handleChangePassword } from '../../../../controller/userManagementController';
 import { useNavigate } from 'react-router-dom';
@@ -80,6 +80,7 @@ const UpdateProfile = ({ formFields, title, onClose, parent, data }) => {
 
         let response;
         if (deviceType === 'water') {
+          console.log("1")
           response = await addWaterDevice({
             device_name: deviceData.device_name,
             added_by: deviceData.added_by,
@@ -92,7 +93,7 @@ const UpdateProfile = ({ formFields, title, onClose, parent, data }) => {
             added_by: deviceData.added_by,
             quantity: deviceData.quantity,
             watts: deviceData.power,
-          }, setDisplayFeedbackMessage);
+          }, setDisplayFeedbackMessage);  
         }
 
         if (checkServerResponse(response)) {

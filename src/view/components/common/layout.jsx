@@ -4,7 +4,7 @@ import {
   MenuUnfoldOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Button, Layout, Menu, theme, Typography, Input, Select, DatePicker } from 'antd';
+import { Button, Layout, Menu, theme, Typography, Input, InputNumber, Select, DatePicker } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import earthLogo from '../static/save-earth.svg';
 import DropdownMenu from './dropdown';
@@ -136,13 +136,13 @@ const AppLayout = () => {
           label: 'Quantity',
           name: 'quantity',
           rules: [{ required: true, message: 'Please enter the quantity!', type: 'number', min: 1  }],
-          component: <Input placeholder="Enter quantity" />,
+          component: <InputNumber placeholder="Enter quantity" />,
         },
         {
           label: 'Wattage/Flowrate',
           name: 'power',
           rules: [{ required: true, message: 'Please enter the value!', type: 'number', min: 0 }],
-          component: <Input type="power" placeholder="Enter wattage/flowrate" />,
+          component: <InputNumber type="power" placeholder="Enter wattage/flowrate" />,
         },
       ]);
     } else if (selectedKey === '4') {

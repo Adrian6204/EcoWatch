@@ -12,14 +12,24 @@ const UsageGraph = ({ data, formData }) => {
   const formattedToDate = formatDate(toDate);
 
   useEffect(() => {
-    const getData = async () => {
+  const getData = async () => {
+    try {
       const response = await viewReportByTimeline(formattedFromDate, formattedToDate, type);
-      console.log(response.data)
-      setTimelineData(response.data);
-    };
+      if (response && response.data) {
+        setTimelineData(response.data);
+      } else {
+        console.error("No data returned from API");
+        setTimelineData([]);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setTimelineData([]);
+    }
+  };
 
-    getData();
-  }, []);
+  getData();
+}, [formattedFromDate, formattedToDate, type]);
+
 
   return (
     <div>

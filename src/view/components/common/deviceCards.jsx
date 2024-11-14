@@ -9,21 +9,27 @@ const DeviceCard = ({ record, onShowModal }) => {
     const [error, setError] = useState('');
 
     const handleToggle = async () => {
+        const newState = !isOn; 
+        setIsOn(newState); 
+        
         let response;
         try {
-            if (isOn) {
-                response = await turnDeviceOff(record.device.deviceId, setError);
-            } else {
+            if (newState) {
                 response = await turnDeviceOn(record.device.deviceId, setError);
+            } else {
+                response = await turnDeviceOff(record.device.deviceId, setError);
             }
-            console.log(response)
-            if(checkServerResponse(response)) {
-                setIsOn(!isOn);
+    
+            if (!checkServerResponse(response)) {
+                setIsOn(isOn);
+                alert('Error toggling device: Server issue');
             }
         } catch (error) {
+            setIsOn(isOn);
             alert('Error toggling device:', error);
         }
     };
+    
 
     return (
         <Space direction="horizontal" size={16}>

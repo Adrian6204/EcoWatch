@@ -16,7 +16,7 @@ const Landing = () => {
                 <div className="text-black text-center">
                     <h1 className="text-4xl">About Us</h1>
                     <p className="mt-10">
-                        EcoWatch is a smart application that monitors the Electricity and Water consumption of Wildcats Innovation Lab. This website is a project for our Application Development course.
+                        EcoWatch is a Smart Application that monitors the Energy and Water consumption for a user.
                     </p>
                     <button 
                         className="mt-4 px-4 py-2 bg-[#001529] text-white rounded hover:bg-blue-600" 

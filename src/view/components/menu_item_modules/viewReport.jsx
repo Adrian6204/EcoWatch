@@ -6,18 +6,15 @@ import { parseISO, startOfYear, startOfMonth, startOfWeek, getWeek } from 'date-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const ViewReport = ({ data }) => {
-  console.log('Raw Data:', data);
-
   const calculateConsumption = (type) => {
     const filteredData = data.filter(item => item.device.type === type);
     const consumption = filteredData.reduce((acc, curr) => acc + curr.usage, 0);
-    console.log(`${type} Consumption Data:`, filteredData);
     return consumption.toFixed(2);  
   };
 
-  const groupDataByTimeframe = (timeframe) => {
-    const currentTime = new Date();
-    const grouped = data.reduce((acc, curr) => {
+  const groupDataByTimeframe = (timeframe, type) => {
+    const filteredData = data.filter(item => item.device.type === type);
+    const grouped = filteredData.reduce((acc, curr) => {
       const deviceOn = parseISO(curr.deviceIsOn);
       let key;
       if (timeframe === 'yearly') {
@@ -30,12 +27,11 @@ const ViewReport = ({ data }) => {
       acc[key] = (acc[key] || 0) + curr.usage;
       return acc;
     }, {});
-    console.log(`${timeframe} Grouped Data:`, grouped);
     return grouped;
   };
 
-  const getChartData = (timeframe) => {
-    const groupedData = groupDataByTimeframe(timeframe);
+  const getChartData = (timeframe, type) => {
+    const groupedData = groupDataByTimeframe(timeframe, type);
     const labels = Object.keys(groupedData);
     const usage = Object.values(groupedData);
 
@@ -43,21 +39,20 @@ const ViewReport = ({ data }) => {
       labels: labels,
       datasets: [
         {
-          label: 'Usage (kWh)',
+          label: `${type} Usage`,
           data: usage,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: type === 'Electric' ? 'rgba(75, 192, 192, 0.6)' : 'rgba(54, 162, 235, 0.6)',
+          borderColor: type === 'Electric' ? 'rgba(75, 192, 192, 1)' : 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
         },
       ],
     };
   };
 
-  const getDeviceChartData = () => {
-    const devices = Array.from(new Set(data.map(item => item.device.deviceName)));
+  const getDeviceChartData = (type) => {
+    const devices = Array.from(new Set(data.filter(item => item.device.type === type).map(item => item.device.deviceName)));
     const usage = devices.map(deviceName => {
-      const deviceData = data.filter(item => item.device.deviceName === deviceName);
-      console.log(`Data for ${deviceName}:`, deviceData);
+      const deviceData = data.filter(item => item.device.deviceName === deviceName && item.device.type === type);
       return deviceData.reduce((acc, curr) => acc + curr.usage, 0);
     });
 
@@ -65,10 +60,10 @@ const ViewReport = ({ data }) => {
       labels: devices,
       datasets: [
         {
-          label: 'Usage (kWh)',
+          label: `${type} Usage (kWh or Liters)`,
           data: usage,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: type === 'Electric' ? 'rgba(75, 192, 192, 0.6)' : 'rgba(54, 162, 235, 0.6)',
+          borderColor: type === 'Electric' ? 'rgba(75, 192, 192, 1)' : 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
         },
       ],
@@ -95,30 +90,54 @@ const ViewReport = ({ data }) => {
     <div>
       <h1 className='mb-3 text-base font-semibold'>Device Usage Report</h1>
       <div className='mb-3'>
-        <h2 className='text-sm font-semibold'>Electric Consumption: {electricConsumption} watts</h2>
-        <h2 className='text-sm font-semibold'>Water Consumption: {waterConsumption} liters</h2>
+        <h2 className='text-sm font-semibold'>Electric Consumption: {electricConsumption} kWh</h2>
+        <h2 className='text-sm font-semibold'>Water Consumption: {waterConsumption} Liters</h2>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="chart-container">
           <div style={{ width: '100%', height: '300px' }}>
-            <Bar data={getChartData('yearly')} options={chartOptions('Yearly Energy Consumption')} />
+            <Bar data={getChartData('yearly', 'Electric')} options={chartOptions('Yearly Electric Consumption')} />
           </div>
         </div>
         <div className="chart-container">
           <div style={{ width: '100%', height: '300px' }}>
-            <Bar data={getChartData('monthly')} options={chartOptions('Monthly Energy Consumption')} />
+            <Bar data={getChartData('yearly', 'Water')} options={chartOptions('Yearly Water Consumption')} />
           </div>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4 mt-4">
         <div className="chart-container">
           <div style={{ width: '100%', height: '300px' }}>
-            <Bar data={getChartData('weekly')} options={chartOptions('Weekly Energy Consumption')} />
+            <Bar data={getChartData('monthly', 'Electric')} options={chartOptions('Monthly Electric Consumption')} />
           </div>
         </div>
         <div className="chart-container">
           <div style={{ width: '100%', height: '300px' }}>
-            <Bar data={getDeviceChartData()} options={chartOptions('Energy Consumption Per Device')} />
+            <Bar data={getChartData('monthly', 'Water')} options={chartOptions('Monthly Water Consumption')} />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getChartData('weekly', 'Electric')} options={chartOptions('Weekly Electric Consumption')} />
+          </div>
+        </div>
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getChartData('weekly', 'Water')} options={chartOptions('Weekly Water Consumption')} />
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getDeviceChartData('Electric')} options={chartOptions('Electric Consumption Per Device')} />
+          </div>
+        </div>
+        <div className="chart-container">
+          <div style={{ width: '100%', height: '300px' }}>
+            <Bar data={getDeviceChartData('Water')} options={chartOptions('Water Consumption Per Device')} />
           </div>
         </div>
       </div>
